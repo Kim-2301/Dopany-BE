@@ -20,8 +20,8 @@ class ETFInfoView(APIView):
     def get(self, request):
         try:
             # request에서 domian_name과 time_unit get
-            domain_name = request.GET.get('domain-name')
-            time_unit = request.GET.get('time-unit')
+            domain_name = request.GET.get('domain-name','IT')   #default는 IT
+            time_unit = request.GET.get('time-unit','day')      #default는 day
 
             if time_unit not in ['day', 'month', 'year']:
                 return Response({"message": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
