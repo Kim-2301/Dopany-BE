@@ -4,5 +4,5 @@ from .views import *
 
 
 urlpatterns = [
-    path('', DomainNameView.as_view(), name='api_1'),
+    path('', CompanyInfoView.as_view(), name='api_3'),
 ]
