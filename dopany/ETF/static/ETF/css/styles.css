@@ -1,0 +1,152 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  height: 70vh;
+  flex-direction: column;
+}
+
+#head-section {
+  display: flex;
+  flex: 0.25;
+  background-color: green;
+  box-sizing: border-box;
+  flex-direction: column;
+}
+
+#body-section {
+  display: flex;
+  flex: 1;
+  background-color: blue;
+  box-sizing: border-box;
+  flex-direction: column;
+}
+
+#foot-section {
+  display: flex;
+  flex: 0.5;
+  background-color: red;
+  box-sizing: border-box;
+  flex-direction: column;
+}
+
+#etf-head-section {
+  display: flex;
+  height: 80px;
+  background-color: yellow;
+  box-sizing: border-box;
+  flex-direction: column;
+}
+
+#etf-filter-section {
+  width: 90%;
+  height: 10%;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+#etf-body-section {
+  display: flex;
+  flex: 1;
+  background-color: purple;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+}
+
+#etf-content-section {
+  display: flex;
+  width: 100%;
+  height: 80%;
+  background-color: purple;
+  box-sizing: border-box;
+}
+
+#etf-graph-article {
+  flex: 0.8;
+  background-color: aqua;
+  box-sizing: border-box;
+}
+
+#etf-description-article {
+  flex: 0.2;
+  background-color: bisque;
+  box-sizing: border-box;
+}
+
+#company-head-section {
+  height: 50px;
+  background-color: yellow;
+  box-sizing: border-box;
+}
+
+#company-body-section {
+  display: flex;
+  flex: 1;
+  background-color: purple;
+  box-sizing: border-box;
+  flex-direction: column;
+}
+
+#etf-head-article {
+  flex: 1;
+  background-color: blue;
+  box-sizing: border-box;
+}
+
+#etf-headsub-article {
+  flex: 0.3;
+  background-color: red;
+  box-sizing: border-box;
+}
+
+#etf-container {
+  display: flex;
+  width: 90%;
+  height: 90%;
+  background-color: coral;
+  box-sizing: border-box;
+  flex-direction: column;
+  border-color: black;
+  border-radius: 20px;
+  align-items: center;
+}
+
+.line-container {
+  display: flex;
+  width: 100%;
+  height: 200px;
+  background-color: white;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+}
+
+#company-container {
+  display: flex;
+  width: 18%;
+  height: 90%;
+  margin-inline: 1%;
+  background-color: coral;
+  box-sizing: border-box;
+  flex-direction: column;
+  border-color: #d9d9d9;
+  border-radius: 20px;
+  align-items: center;
+}
+
+#company-icon-section {
+  display: flex;
+  width: 100%;
+  height: 60%;
+  background-color: aqua;
+  box-sizing: border-box;
+  justify-content: center;
+  border-radius: 20px 20px 0 0;
+  align-items: center;
+}
