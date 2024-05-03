@@ -3,13 +3,18 @@ import pandas as pd
 from ETF.mapper.preprocessor import LoadPreprocessor
 from ETF.mapper.loader import DataLoader
 from ETF.mapper.constants import *
+from ETF.mapper.converter import Converter
 
 class Command(BaseCommand):
     help = 'Loads data into the system.'
 
     def handle(self, *args, **options):
+        converter = Converter()
+        etf_products_df = converter.convert_csv_to_df('ETF/mapper/initial_data/domain_etf_name_map.csv')
+
         preprocessor = LoadPreprocessor()
-        etf_products_df = preprocessor.add_domain_id_from_name(etf_list)
+        etf_products_df = preprocessor.add_domain_id_from_name(etf_products_df)
+        print(etf_products_df)
 
         loader = DataLoader()
         num_input, num_created, num_updated = loader.load_etf_product_from_df(etf_products_df)

@@ -11,7 +11,7 @@ class LoadPreprocessor:
         raw_df with the corresponding domain_id.
 
         Parameters:
-        - raw_df (DataFrame): DataFrame with industry data including 'domain_name'.
+        - raw_df (DataFrame): DataFrame including 'domain_name'.
 
         Returns:
         - DataFrame: Updated DataFrame with 'domain_id' added.
@@ -36,7 +36,7 @@ class LoadPreprocessor:
         raw_df with the corresponding etf_product_id.
 
         Parameters:
-        - raw_df (DataFrame): DataFrame with etf_major_company data including 'etf_product_name'.
+        - raw_df (DataFrame): DataFrame including 'etf_product_name'.
 
         Returns:
         - DataFrame: Updated DataFrame with 'etf_product_id' added.
@@ -63,7 +63,7 @@ class LoadPreprocessor:
         Updates raw_df with industry_id based on industry_name and domain_name.
 
         Parameters:
-        - raw_df (DataFrame): DataFrame with company data including 'industry_name' and 'domain_name'.
+        - raw_df (DataFrame): DataFrame including 'industry_name' and 'domain_name'.
 
         Returns:
         - DataFrame: Updated DataFrame with 'industry_id' added.
@@ -88,5 +88,33 @@ class LoadPreprocessor:
             error_message = "No matching industry_id found for given industry and domain combinations:\n"
             error_message += "\n".join([f"{row['industry_name']} in {row['domain_name']}" for _, row in missing_data.iterrows()])
             raise ValueError(error_message)
+
+        return raw_df
+
+    def add_industry_from_name(self, raw_df):
+        """
+        Directly maps industry_name to industry using the Industry model and updates
+        raw_df with the corresponding industry.
+
+        Parameters:
+        - raw_df (DataFrame): DataFrame including 'industry_name'.
+
+        Returns:
+        - DataFrame: Updated DataFrame with 'industry' added.
+        """
+        # Function to fetch etf_product_id based on etf_product_name
+        def get_industry(industry_name):
+            try:
+                return Industry.objects.get(industry_name=industry_name)
+            except ObjectDoesNotExist:
+                return None
+
+        # Apply the function to each row in the DataFrame
+        raw_df['industry'] = raw_df['industry_name'].apply(get_industry)
+
+        # Check if there are any rows where 'etf_product_id' couldn't be found
+        if raw_df['industry'].isnull().any():
+            missing_names = raw_df[raw_df['industry'].isnull()]['industry_name'].tolist()
+            raise ValueError(f"No matching industry found for industry_names: {', '.join(missing_names)}")
 
         return raw_df
