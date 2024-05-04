@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from .models import Domain
+from django.shortcuts import render
 
 
 class DomainNameView(APIView):
@@ -18,3 +19,9 @@ class DomainNameView(APIView):
             return Response({"domain_names": list(domain_names)}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def index(request):
+    return render(request, 'ETF/domain_index.html', {
+        'etf_container': 'ETF/etf_container.html',
+        'company_container': 'ETF/company_container.html'
+    })
