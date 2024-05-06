@@ -1,5 +1,3 @@
-# models.py
-
 from django.db import models
 
 '''
@@ -31,9 +29,7 @@ class EtfProduct(models.Model):
     etf_product_name = models.CharField(max_length=100,unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    domain_id = models.ForeignKey(Domain, on_delete=models.CASCADE)
-    class Meta:
-        unique_together = ['etf_name', 'transaction_date']
+    domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
     
 
 '''
@@ -52,11 +48,16 @@ class EtfPrice(models.Model):
     etf_price_id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    transaction_date = models.DateTimeField
+    transaction_date = models.DateTimeField(null=False)
     closing_price = models.IntegerField()
     trading_volume = models.IntegerField()
     change = models.FloatField()
-    etf_product_id = models.ForeignKey(EtfProduct, on_delete=models.CASCADE)
+    etf_product = models.ForeignKey(EtfProduct, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['etf_product', 'transaction_date'], name='unique_etf_product_transaction_date')
+        ]
  
 
 
@@ -73,26 +74,31 @@ class EtfMajorCompany(models.Model):
     etf_major_company_id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now=True)
-    company_name = models.CharField(max_length=100, unique=True)
-    etf_name = models.ForeignKey(Etf, on_delete=models.CASCADE)
+    company_name = models.CharField(max_length=100)
+    etf_product = models.ForeignKey(EtfProduct, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['etf_product', 'company_name'], name='unique_etf_product_company_name')
+        ]
     
     
     
 '''
 Industry {
-    industry_id	    int         PK	    자동생성(ex. 행번호)
-    created_at		time                레코드 생성 시간
-    updated_at		time                레코드 수정 시간
-    industry_name	string          	산업 이름(ex. IT.정보통신업>게임.애니메이션)
-    domain_id	    int         FK	    도메인 id
+    industry_id	    int         PK	        자동생성(ex. 행번호)
+    created_at		time                    레코드 생성 시간
+    updated_at		time                    레코드 수정 시간
+    industry_name	string      unique    	산업 이름(ex. IT.정보통신업>게임.애니메이션)
+    domain_id	    int         FK	        도메인 id
 }
 '''
 class Industry(models.Model):
     industry_id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    industry_name = models.CharField(max_length=255)
-    domain_id = models.ForeignKey(Domain, on_delete=models.CASCADE)
+    industry_name = models.CharField(max_length=255, unique=True)
+    domains = models.ManyToManyField(Domain, related_name='industries')
 
 
 '''
@@ -121,4 +127,4 @@ class Company(models.Model):
     company_url = models.URLField()
     company_img_url = models.URLField()
     company_addr = models.CharField(max_length=255)
-    industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
+    industries = models.ManyToManyField(Industry, related_name='companies')
