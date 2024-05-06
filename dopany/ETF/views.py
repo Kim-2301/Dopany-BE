@@ -4,11 +4,24 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from drf_yasg import openapi
-from .models import EtfPrice, EtfProduct, Domain, Company, Industry
-from django.core.exceptions import ObjectDoesNotExist, EtfMajorCompany
+from .models import EtfPrice, EtfProduct, Domain, Company, Industry, EtfMajorCompany
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Avg
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
+
+class DomainNameView(APIView):
+    @swagger_auto_schema(
+        operation_description='도메인 이름 조회',
+        responses={200: 'Success', 400: 'Bad Request', 500: 'Internal Server Error'},
+    )
+    def get(self,request):
+        try:
+            # 모든 domain_name 가져오기
+            domain_names = Domain.objects.values_list('domain_name', flat=True)
+            return Response({"domain_names": list(domain_names)}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ETFInfoView(APIView):
@@ -72,6 +85,8 @@ class ETFInfoView(APIView):
             return Response({"message": "해당 시간축에 대한 지표 정보를 불러오는 데 실패했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response({"message": "존재하지 않는 데이터입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class CompanyInfoView(APIView):
     @swagger_auto_schema(
         operation_description='도메인에 속한 기업 정보 조회',
