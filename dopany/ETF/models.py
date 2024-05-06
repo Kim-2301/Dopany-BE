@@ -18,7 +18,7 @@ class Domain(models.Model):
 '''
 EtfProduct  {
     etf_product_id      int         pk          자동생성(ex. 행번호)
-    etf_product_name	string                  ETF 상품명(ex. KODEX K-메타버스액티브)
+    etf_product_name	string      unique      ETF 상품명(ex. KODEX K-메타버스액티브)
     created_at          time                    레코드 생성 시간
     updated_at          time                    레코드 수정 시간
     domain_id           int         fk          도메인 id

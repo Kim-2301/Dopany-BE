@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizontal Thirds</title>
+    <link rel="stylesheet" href="{% static 'ETF/css/styles.css' %}" />
+  </head>
+  <body>
+    <div class="container">
+      <div id="head-section">
+        <div class="svg-article">
+          <img src="{% static 'ETF/images/Dopany.svg' %}" alt="icon SVG" />
+        </div>
+      </div>
+      <div id="body-section">
+        <div id="etf-head-section">
+          <div id="etf-head-article"></div>
+          <div id="etf-headsub-article"></div>
+        </div>
+        <div id="etf-body-section">{% include etf_container %}</div>
+      </div>
+    </div>
+    <div id="foot-section">
+      <div id="company-head-section"></div>
+      {% include company_container %}
+    </div>
+  </body>
+</html>
