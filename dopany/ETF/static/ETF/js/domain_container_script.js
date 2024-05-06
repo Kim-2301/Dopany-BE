@@ -1,5 +1,6 @@
 let currDomainName = "";
 let currTimeUnit = "day";
+let etfsGraphColors = {};
 
 $(document).ready(function () {
   currDomainName = requestETFByTime(currTimeUnit);
@@ -9,6 +10,8 @@ $(document).ready(function () {
 });
 
 setSelectDomainBtn = () => {
+  etfsGraphColors = {};
+
   const buttons = document.querySelectorAll(".domain-select-btn");
   buttons.forEach(function (button) {
     button.addEventListener("click", function () {
@@ -135,18 +138,19 @@ displayETFChart = (data) => {
         y: parseFloat(price.replace("원", "")),
       })),
       fill: false,
-      borderColor: getRandomColor(), // 각 선의 색상을 랜덤으로 생성
+      borderColor: getRandomColor(etf.etf_name), // 각 선의 색상을 랜덤으로 생성
       tension: 0.1,
     };
   });
 
   // 랜덤 색상 생성 함수
-  function getRandomColor() {
+  function getRandomColor(etf_name) {
     const letters = "0123456789ABCDEF";
     let color = "#";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
+    etfsGraphColors[etf_name] = color;
     return color;
   }
 
@@ -180,7 +184,7 @@ displayETFDesc = (data) => {
       width: "10px",
       height: "10px",
       "border-radius": "50%",
-      "background-color": index % 2 === 0 ? "#ff6384" : "#ffcd56",
+      "background-color": etfsGraphColors[etf.etf_name],
       "margin-right": "5px",
     });
     var itemHTML = $("<li></li>")
@@ -242,19 +246,19 @@ displayCompanies = (data) => {
   });
 };
 
-function adjustCardLayout() {
-  const screenWidth = window.innerWidth;
-  let columns;
-  if (screenWidth < 600) {
-    columns = 1; // 화면이 좁을 때는 한 행에 한 카드
-  } else if (screenWidth < 900) {
-    columns = 2; // 중간 크기 화면에서는 한 행에 두 카드
-  } else {
-    columns = 3; // 더 넓은 화면에서는 한 행에 세 카드
-  }
-  const mainContainer = document.getElementById("company-body-section");
-  mainContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-}
+// function adjustCardLayout() {
+//   const screenWidth = window.innerWidth;
+//   let columns;
+//   if (screenWidth < 600) {
+//     columns = 1; // 화면이 좁을 때는 한 행에 한 카드
+//   } else if (screenWidth < 900) {
+//     columns = 2; // 중간 크기 화면에서는 한 행에 두 카드
+//   } else {
+//     columns = 3; // 더 넓은 화면에서는 한 행에 세 카드
+//   }
+//   const mainContainer = document.getElementById("company-body-section");
+//   mainContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+// }
 
-window.addEventListener("resize", adjustCardLayout); // 창 크기 조정 시 레이아웃 조정
-adjustCardLayout(); // 페이지 로드 시 레이아웃 초기화
+// window.addEventListener("resize", adjustCardLayout); // 창 크기 조정 시 레이아웃 조정
+// adjustCardLayout(); // 페이지 로드 시 레이아웃 초기화
