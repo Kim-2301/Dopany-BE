@@ -11,7 +11,7 @@ class DomainNameView(APIView):
         operation_description='도메인 이름 조회',
         responses={200: 'Success', 400: 'Bad Request', 500: 'Internal Server Error'},
     )
-    def get(self):
+    def get(self,request):
         try:
             # 모든 domain_name 가져오기
             domain_names = Domain.objects.values_list('domain_name', flat=True)
