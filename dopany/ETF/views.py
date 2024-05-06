@@ -19,20 +19,17 @@ class CompanyInfoView(APIView):
             # request에서 domain_name get
             domain_name = request.GET.get('domain-name','IT')
             
-            # domain_name에 해당하는 industry 조회
-            industry = Industry.objects.get(domain_name=domain_name)
-            
-            # 해당 industry에 속하는 모든 기업 정보 조회
-            companies = Company.objects.filter(industry=industry)
-            
-            # 기업 정보를 리스트로 만들기
+            domain= Domain.objects.get(domain_name=domain_name)
+            industries = Industry.objects.filter(domains=domain)      
             domain_companies_info = []
-            for company in companies:
+            
+            for industry in industries:
+                companies = Company.objects.filter(industries=industry)
+                company_names = [company.company_name for company in companies]
+                
                 domain_companies_info.append({
-                    "company_name": company.company_name,
-                    "company_size": company.company_size,
-                    "company_sales": company.company_sales,
                     "industry_name": industry.industry_name,
+                    "company_names": company_names,
                 })
             
             response_data = {
