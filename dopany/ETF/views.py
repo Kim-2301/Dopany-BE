@@ -106,12 +106,17 @@ class CompanyInfoView(APIView):
             
             for industry in industries:
                 companies = Company.objects.filter(industries=industry)
-                company_names = [company.company_name for company in companies]
+                company_info_list = []
                 
-                domain_companies_info.append({
-                    "industry_name": industry.industry_name,
-                    "company_names": company_names,
-                })
+                for company in companies:
+                    company_info_list.append({
+                        "company_name": company.company_name,
+                        "company_size": company.company_size,
+                        "company_sales": company.company_sales,
+                        "industry_name": industry.industry_name,
+                    })
+                
+                domain_companies_info.extend(company_info_list)
             
             response_data = {
                 "domain_companies_info": domain_companies_info
