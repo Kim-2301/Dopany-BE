@@ -113,9 +113,9 @@ class DataLoader:
             company.industries.add(industry)
             print(industry_name)
 
-        # Bulk update existing companies if needed
-        if to_update:
-            Company.objects.bulk_update(to_update, ['industries'])
+        for company in created_companies:
+            company.industries.add(industry)
+            print(f"New company {company.company_name} added with industry {industry_name}")
 
         return len(company_list), len(new_companies), len(to_update)
 
@@ -174,36 +174,38 @@ class DataLoader:
             Q(etf_product_id__in=etf_product_ids)
         )
 
-        existing_etf_prices = {(ep.transaction_date, ep.etf_product_id): ep for ep in existing_etf_prices}
+        date_str_format = '%Y-%m-%d'
+        existing_etf_prices = {(ep.transaction_date.strftime(date_str_format), ep.etf_product_id): ep for ep in existing_etf_prices}
 
         to_update = []
-        to_create = []
+        to_create = {}
 
         for etf_price_data in etf_price_list:
             key = (etf_price_data['transaction_date'], etf_price_data['etf_product_id'])
-            etf_product_id = etf_price_data['etf_product_id']
-            etf_product = etf_products.get(etf_product_id)
-            if not etf_product:
-                continue  # Skip if no matching domain
-
             if key in existing_etf_prices:
                 etf_price = existing_etf_prices[key]
-                etf_price.etf_product = etf_product
                 for key, value in etf_price_data.items():
                     setattr(etf_price, key, value)
                 to_update.append(etf_price)
-            else:
-                etf_price_data['etf_product'] = etf_product
-                del etf_price_data['etf_product_id']  # Remove domain_id as we now have a domain object
-                to_create.append(EtfPrice(**etf_price_data))
+            elif key not in to_create:
+                etf_product = etf_products.get(etf_price_data['etf_product_id'])
+                if etf_product:
+                    etf_price_data['etf_product'] = etf_product
+                    del etf_price_data['etf_product_id']
+                    to_create[key] = EtfPrice(**etf_price_data)
+
+        # Convert dictionary values to list for bulk_create
+        unique_to_create = list(to_create.values())
+        print(to_create.keys())
 
         with transaction.atomic():
-            if to_create:
-                EtfPrice.objects.bulk_create(to_create)
+            if unique_to_create:
+                EtfPrice.objects.bulk_create(unique_to_create)
             if to_update:
                 EtfPrice.objects.bulk_update(to_update, ['closing_price', 'trading_volume', 'change'])
 
-        return len(etf_price_list), len(to_create), len(to_update)
+        return len(etf_price_list), len(unique_to_create), len(to_update)
+    
     
     def load_etf_major_company_from_df(self, etf_major_companies_df):
         etf_major_companies_df = etf_major_companies_df[['company_name', 'etf_product_id']]
@@ -221,10 +223,10 @@ class DataLoader:
         existing_etf_major_companies = {(em.company_name, em.etf_product_id): em for em in existing_etf_major_companies}
 
         to_update = []
-        to_create = []
+        to_create = {}
 
         for etf_major_company_data in etf_major_company_list:
-            key = (etf_major_company_data['etf_product_id'], etf_major_company_data['company_name'])
+            key = (etf_major_company_data['company_name'], etf_major_company_data['etf_product_id'])
             etf_product_id = etf_major_company_data['etf_product_id']
             etf_product = etf_products.get(etf_product_id)
             if not etf_product:
@@ -236,15 +238,19 @@ class DataLoader:
                 for key, value in etf_major_company_data.items():
                     setattr(etf_major_company, key, value)
                 to_update.append(etf_major_company)
-            else:
+            elif key not in to_create:
                 etf_major_company_data['etf_product'] = etf_product
                 del etf_major_company_data['etf_product_id']  # Remove domain_id as we now have a domain object
-                to_create.append(EtfMajorCompany(**etf_major_company_data))
+                to_create[key] = EtfMajorCompany(**etf_major_company_data)
+
+        # Convert dictionary values to list for bulk_create
+        unique_to_create = list(to_create.values())
+        print(to_create.keys())
 
         with transaction.atomic():
-            if to_create:
-                EtfMajorCompany.objects.bulk_create(to_create)
+            if unique_to_create:
+                EtfMajorCompany.objects.bulk_create(unique_to_create)
             if to_update:
                 EtfMajorCompany.objects.bulk_update(to_update, ['company_name'])
 
-        return len(etf_major_company_list), len(to_create), len(to_update)
+        return len(etf_major_company_list), len(unique_to_create), len(to_update)
