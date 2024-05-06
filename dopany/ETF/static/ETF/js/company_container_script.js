@@ -1,59 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const mainContainer = document.getElementById("company-body-section");
+  const mainContainer = document.getElementById("company-grid-section");
+  mainContainer.innerHTML = "";
 
-  for (let i = 0; i < 10; i++) {
-    const lineContainer = document.createElement("div");
-    lineContainer.className = "line-container"; // Ensuring unique ID for each line-container
-    for (let i = 0; i < 5; i++) {
-      const companyContainer = document.createElement("div");
-      companyContainer.id = "company-container";
-      companyContainer.style.zIndex = "10";
-      companyContainer.innerHTML = `
-            <div id="company-icon-section"></div>
-            <div id="company-content-section">
-                <div id="title-article"></div>
-                <div id="description-article"></div>
+  for (let i = 0; i < 5; i++) {
+    const companyContainer = document.createElement("button");
+    companyContainer.className = "company-container";
+    companyContainer.style.zIndex = "10";
+    companyContainer.innerHTML = `
+            <div class="company-icon-section">
+              <div style="width: 50%;">
+                <img src="/static/ETF/images/Dopany.svg" alt="icon SVG" style="max-width: 100%; height: auto;">
+              </div>
+            </div>
+            <div class="company-content-section">
+                <div id="company-title-article">
+                  회사명
+                </div>
+                <div>
+                  <ul class="company-description-article" style="margin: 0">
+                    <li>산업분야</li>
+                    <li>매출액</li>
+                    <li>규모</li>
+                  </ul>
+                </div>
             </div>
         `;
-      lineContainer.appendChild(companyContainer);
-    }
-
-    mainContainer.appendChild(lineContainer);
+    mainContainer.appendChild(companyContainer);
   }
 });
-
-// document.addEventListener("DOMContentLoaded", function () {
-//   const mainContainer = document.getElementById("company-body-section");
-
-//   if (!mainContainer) {
-//     console.error("The main container element does not exist!");
-//     return;
-//   }
-
-//   function createCompanyContainer() {
-//     const companyContainer = document.createElement("div");
-//     companyContainer.className = "company-container";
-//     companyContainer.style.zIndex = "10";
-//     companyContainer.innerHTML = `
-//           <div class="company-icon-section"></div>
-//           <div class="company-content-section">
-//               <div class="title-article"></div>
-//               <div class="description-article"></div>
-//           </div>
-//       `;
-
-//     return companyContainer;
-//   }
-
-//   for (let i = 0; i < 10; i++) {
-//     const lineContainer = document.createElement("div");
-//     lineContainer.className = "line-container";
-//     lineContainer.style.zIndex = "1";
-
-//     for (let j = 0; j < 5; j++) {
-//       lineContainer.appendChild(createCompanyContainer());
-//     }
-
-//     mainContainer.appendChild(lineContainer);
-//   }
-// });

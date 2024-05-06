@@ -21,7 +21,10 @@ class DomainNameView(APIView):
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def index(request):
+    domains = ['domain1', 'domain2', 'domain3']
+
     return render(request, 'ETF/domain_index.html', {
         'etf_container': 'ETF/etf_container.html',
-        'company_container': 'ETF/company_container.html'
+        'company_container': 'ETF/company_container.html',
+        'domains': domains
     })
