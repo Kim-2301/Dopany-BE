@@ -168,63 +168,6 @@ displayETFChart = (data) => {
       responsive: true, // 반응형 디자인을 활성화
     },
   });
-
-  // const chart = new Chart(ctx, {
-  //   type: "line",
-  //   data: {
-  //     labels: [
-  //       "2023-01-01",
-  //       "2023-01-02",
-  //       "2023-01-03",
-  //       "2023-01-04",
-  //       "2023-01-05",
-  //     ],
-  //     datasets: [
-  //       {
-  //         label: "etf1",
-  //         data: [120, 190, 300, 500, 200],
-  //         borderColor: "#F67D98",
-  //         tension: 0.1,
-  //       },
-  //       {
-  //         label: "etf2",
-  //         data: [12, 19, 3, 5, 2, 3],
-  //         borderColor: "#349DE4",
-  //         borderWidth: 1,
-  //       },
-  //       {
-  //         label: "etf3",
-  //         data: [7, 11, 5, 8, 3, 7],
-  //         borderColor: "#83B982",
-  //         borderWidth: 1,
-  //       },
-  //       {
-  //         label: "etf4",
-  //         data: [7, 11, 5, 8, 3, 7],
-  //         borderColor: "#F7C853",
-  //         borderWidth: 1,
-  //       },
-  //     ],
-  //   },
-  //   options: {
-  //     scales: {
-  //       x: {
-  //         type: "time",
-  //         time: {
-  //           unit: "day",
-  //           tooltipFormat: "ll",
-  //         },
-  //         title: {
-  //           display: true,
-  //           text: "날짜",
-  //         },
-  //       },
-  //     },
-  //     maintainAspectRatio: false, // 그래프 비율을 유지
-  //     responsive: true, // 반응형 디자인을 활성화
-  //     // 기타 옵션 설정
-  //   },
-  // });
 };
 
 displayETFDesc = (data) => {
