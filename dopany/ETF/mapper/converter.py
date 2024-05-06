@@ -27,6 +27,7 @@ class Converter:
             if filename.endswith('.csv'):
                 file_path = os.path.join(directory_path, filename)
                 df = pd.read_csv(file_path)
+                df['industry_name'] = f'{filename.split("_")[0]}>{filename.split("_")[1]}'
                 
                 dataframes.append(df)
         

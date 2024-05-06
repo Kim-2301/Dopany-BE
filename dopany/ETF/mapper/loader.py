@@ -54,68 +54,70 @@ class DataLoader:
         existing_industry_map = {industry.industry_name: industry for industry in existing_industries}
 
         to_update = []
-        to_create = []
+        to_create = {}
 
-        for industry_data in industries_df.to_dict('records'):
-            with transaction.atomic():
+        with transaction.atomic():  # 시작하는 트랜잭션을 함수 전체로 확장
+            for industry_data in industries_df.to_dict('records'):
                 industry_name = industry_data['industry_name']
                 domain_id = industry_data['domain_id']
                 domain = domains.get(domain_id)
                 if not domain:
                     continue  # Skip if no matching domain
 
-                if (industry_name in existing_industry_map) or (industry_name in to_create):
-                    try:
-                        industry = existing_industry_map[industry_name]
-                    except KeyError:
-                        industry = Industry.objects.get(industry_name = industry_name)
+                industry = existing_industry_map.get(industry_name)
+                if industry:
+                    industry = existing_industry_map[industry_name]
                     if not industry.domains.filter(domain_id=domain_id).exists():
                         industry.domains.add(domain)
                         to_update.append(industry)  # To signify that domains were updated
-                else:
+                elif industry_name not in to_create:
                     new_industry = Industry(industry_name=industry_name)
-                    to_create.append(industry_name)
-
-                    new_industry.save()
+                    new_industry.save()  # 먼저 객체를 저장
                     new_industry.domains.add(domain)
+                    to_create[industry_name] = new_industry  # 성공적으로 생성된 객체를 저장
 
         return len(industries_df), len(to_create), len(to_update)
     
-    
-    def load_company_from_df(self, companies_df):
 
+    def load_company_from_df(self, companies_df):
         company_list = companies_df.to_dict('records')
         existing_companies = Company.objects.in_bulk(list(companies_df['company_name']), field_name='company_name')
         existing_company_names = set(existing_companies.keys())
 
         to_update = []
-        to_create = []
+        new_companies = []
 
         for company_data in company_list:
-            with transaction.atomic():
-                company_name = company_data['company_name']
-                industry_name = company_data.pop('industry_name', [])
-                company_data = {k: v for k, v in company_data.items() if k in [field.name for field in Company._meta.get_fields()]}
-                industry = Industry.objects.get(industry_name = industry_name)
+            company_name = company_data['company_name']
+            industry_name = company_data.pop('industry_name', None)
+            company_data = {k: v for k, v in company_data.items() if k in [field.name for field in Company._meta.get_fields()]}
 
-                if (company_name in existing_company_names) or (company_name in to_create):
-                    try:
-                        company = existing_companies[company_name]
-                    except KeyError:
-                        company = Company.objects.get(company_name = company_name)
-                    if not company.industries.filter(industry_name=industry_name).exists():
-                        company.industries.add(industry)
-                        print(industry.industry_name)
-                        to_update.append(company_name)  # To signify that domains were updated
-                else:
-                    new_company = Company(**company_data)
-                    to_create.append(company_name)
+            try:
+                industry = Industry.objects.get(industry_name=industry_name)
+            except Industry.DoesNotExist:
+                raise Industry.DoesNotExist(f"The industry '{industry_name}' does not exist in the database.")
 
-                    new_company.save()
-                    print(industry.industry_name)
-                    new_company.industries.add(industry)
+            if company_name in existing_company_names:
+                company = existing_companies[company_name]
+                if not company.industries.filter(industry_name=industry_name).exists():
+                    company.industries.add(industry)
+                    to_update.append(company)
+            elif company_name not in [c.company_name for c in new_companies]:
+                new_companies.append(Company(**company_data))
 
-        return len(company_list), len(to_create), len(to_update)
+        # Bulk create new companies
+        created_companies = Company.objects.bulk_create(new_companies)
+        
+        # After creation, map companies to industries
+        for company in created_companies:
+            company.industries.add(industry)
+            print(industry_name)
+
+        # Bulk update existing companies if needed
+        if to_update:
+            Company.objects.bulk_update(to_update, ['industries'])
+
+        return len(company_list), len(new_companies), len(to_update)
 
 
     def load_etf_product_from_df(self, etf_products_df):
