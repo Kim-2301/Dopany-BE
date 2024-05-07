@@ -3,12 +3,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from drf_yasg import openapi
 from .models import EtfPrice, EtfProduct, Domain, Company, Industry, EtfMajorCompany
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Avg
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
+from datetime import datetime, timedelta
+
 
 class DomainNameView(APIView):
     @swagger_auto_schema(
@@ -66,11 +66,34 @@ class ETFInfoView(APIView):
                     major_companies = EtfMajorCompany.objects.filter(etf_product=etf_product).values_list('company_name', flat=True)
                     
                 if time_unit == 'week':
-                    etf_avg = etf_prices.extra({'week': "EXTRACT(week FROM transaction_date)"}).values('week').annotate(time_avg=Avg('closing_price')).order_by('week')
+                    # 주 단위의 평균을 구함
+                    etf_avg = etf_prices.extra({'week': "EXTRACT(week FROM transaction_date)"}).values('week').annotate(closing_avg=Avg('closing_price')).order_by('week')
+                    # 주의 시작일로 변환하여 date 키에 추가
+                    for item in etf_avg:
+                        week_number = int(item['week'])
+                        # 현재 날짜를 기준으로 주의 시작일 계산
+                        week_start_date = (datetime.now() - timedelta(days=datetime.now().weekday(), weeks=week_number - 1)).strftime('%Y-%m-%d')
+                        item['date'] = week_start_date
+                    # 기존의 week 키를 삭제
+                    for item in etf_avg:
+                        del item['week']
                 elif time_unit == 'month':
-                    etf_avg = etf_prices.extra({'month': "EXTRACT(month FROM transaction_date)"}).values('month').annotate(time_avg=Avg('closing_price')).order_by('month')
+                    # 월 단위의 평균을 구함
+                    etf_avg = etf_prices.extra({'month': "EXTRACT(month FROM transaction_date)"}).values('month').annotate(closing_avg=Avg('closing_price')).order_by('month')
+                    # 월의 시작일로 변환하여 date 키에 추가
+                    for item in etf_avg:
+                        month_number = int(item['month'])
+                        # 현재 날짜를 기준으로 월의 시작일 계산
+                        month_start_date = datetime(datetime.now().year, month_number, 1).strftime('%Y-%m-%d')
+                        item['date'] = month_start_date
+                    # 기존의 month 키를 삭제
+                    for item in etf_avg:
+                        del item['month']
                 else:
                     etf_avg = None
+
+                
+                
                     
                 # ETF 정보를 딕셔너리로 저장하고 리스트에 추가
                 etf_info.append({
@@ -78,7 +101,7 @@ class ETFInfoView(APIView):
                     "etf_major_company": list(major_companies),
                     "transaction_date": transaction_dates,
                     "closing_price": closing_prices,
-                    "time_avg" : etf_avg
+                    "closing_prices_avg" : etf_avg
                 })
                 
 
@@ -92,7 +115,7 @@ class ETFInfoView(APIView):
         except ObjectDoesNotExist:
             return Response({"message": "해당 시간축에 대한 지표 정보를 불러오는 데 실패했습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            return Response({"message": "존재하지 않는 데이터입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CompanyInfoView(APIView):
@@ -116,13 +139,18 @@ class CompanyInfoView(APIView):
             
             for industry in industries:
                 companies = Company.objects.filter(industries=industry)
-
-                company_names = [company.company_name for company in companies]
+                company_info_list = []
                 
-                domain_companies_info.append({
-                    "industry_name": industry.industry_name,
-                    "company_name": company_names,
-                })
+                for company in companies:
+                    company_info_list.append({
+                        "company_name": company.company_name,
+                        "company_size": company.company_size,
+                        "company_sales": company.company_sales,
+                        "company_img_url" : company.company_img_url,
+                        "industry_name": industry.industry_name,
+                    })
+                
+                domain_companies_info.extend(company_info_list)
             
             response_data = {
                 "domain_companies_info": domain_companies_info
