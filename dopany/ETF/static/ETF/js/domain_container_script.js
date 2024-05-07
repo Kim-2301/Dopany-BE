@@ -160,8 +160,7 @@ displayETFChart = (data) => {
     EtfApp.etfChart.destroy();
   }
 
-  const etfDatasets = data.etf_info.map((etf) => {
-    console.log(etf);
+  const etfDatasets = data.etf_info.map((etf, index) => {
     return {
       label: etf.etf_name,
       data: etf.closing_price.map((price, index) => ({
@@ -169,10 +168,18 @@ displayETFChart = (data) => {
         y: price,
       })),
       fill: false,
-      borderColor: getRandomColor(etf.etf_name), // 각 선의 색상을 랜덤으로 생성
+      // borderColor: getRandomColor(etf.etf_name), // 각 선의 색상을 랜덤으로 생성
+      borderColor: generateColor(etf.etf_name, index),
       tension: 0.1,
     };
   });
+
+  function generateColor(etf_name, index) {
+    const colors = ["#349DE4", "#F7C853", "#F67D98", "#83B982", "#B784B7"];
+    color = colors[index];
+    EtfApp.etfsGraphColors[etf_name] = color;
+    return color;
+  }
 
   // 랜덤 색상 생성 함수
   function getRandomColor(etf_name) {
@@ -218,10 +225,21 @@ displayETFDesc = (data) => {
       "background-color": EtfApp.etfsGraphColors[etf.etf_name],
       "margin-right": "5px",
     });
-    var itemHTML = $("<li></li>")
+    var descHTML = $("<div style='margin: 10px;'></div>");
+    var titleHTML = $("<span style='color: black;'></span>")
       .append(circle)
-      .append(etf.etf_name + "   " + etf.etf_major_company.join(", "));
-    infoDiv.append(itemHTML);
+      .append(etf.etf_name + "  주요기업");
+    descHTML.append(titleHTML);
+    var compsHTML = $();
+    etf.etf_major_company.forEach(function (company) {
+      compsHTML = compsHTML.add(
+        $("<li style='text-align: left; padding-left: 20px'></li>").text(
+          company
+        )
+      );
+    });
+    descHTML.append(compsHTML);
+    infoDiv.append(descHTML);
   });
 };
 

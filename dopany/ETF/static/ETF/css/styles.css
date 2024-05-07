@@ -90,7 +90,7 @@ html {
 
 #etf-graph-article {
   display: flex;
-  width: 80%;
+  width: 85%;
   height: 95%;
   box-sizing: border-box;
   justify-content: center;
@@ -100,7 +100,7 @@ html {
 }
 
 #etf-description-article {
-  width: 20%;
+  width: 15%;
   box-sizing: border-box;
 }
 
@@ -427,4 +427,5 @@ li {
   color: #929292;
   list-style-type: none; /* Remove default list dots */
   padding-left: 0; /* Remove padding */
+  font-size: 12px;
 }
