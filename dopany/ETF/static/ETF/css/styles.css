@@ -105,9 +105,9 @@ html {
 }
 
 .company-description-article {
-  font-size: 15px;
+  font-size: 13px;
   color: #929292;
-  flex-grow: 2;
+  flex-grow: 3;
 }
 
 ul {
@@ -131,7 +131,7 @@ li {
 .company-title-article {
   font-weight: bold;
   font-size: large;
-  flex-grow: 3;
+  flex-grow: 5;
 }
 
 #company-head-section {
@@ -156,7 +156,7 @@ li {
 #company-body-section {
   display: flex;
   box-sizing: border-box;
-  height: auto;
+  max-height: 500px;
 }
 
 #company-grid-section {

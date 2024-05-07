@@ -160,13 +160,24 @@ displayETFChart = (data) => {
     EtfApp.etfChart.destroy();
   }
 
+  timeUnit = data.time_unit;
   const etfDatasets = data.etf_info.map((etf, index) => {
-    return {
-      label: etf.etf_name,
-      data: etf.closing_price.map((price, index) => ({
+    let data = null;
+    if (timeUnit === "day") {
+      data = etf.closing_price.map((price, index) => ({
         x: etf.transaction_date[index],
         y: price,
-      })),
+      }));
+    } else {
+      data = etf.closing_prices_avg.map((item, index) => ({
+        x: item.date,
+        y: item.closing_avg,
+      }));
+    }
+
+    return {
+      label: etf.etf_name,
+      data: data,
       fill: false,
       // borderColor: getRandomColor(etf.etf_name), // 각 선의 색상을 랜덤으로 생성
       borderColor: generateColor(etf.etf_name, index),
@@ -266,6 +277,7 @@ displayCompanies = (data) => {
   const mainContainer = document.getElementById("company-grid-section");
   mainContainer.innerHTML = ""; // 기존 내용 초기화
 
+  console.log("startdats");
   data.domain_companies_info.forEach((company) => {
     const companyContainer = document.createElement("div");
     companyContainer.className = "company-container";
@@ -277,12 +289,23 @@ displayCompanies = (data) => {
         ? String(company.company_name).substring(0, maxLength) + "..."
         : company.company_name;
 
+    const convertedImg = company.company_img_url.includes("명시")
+      ? undefined
+      : company.company_img_url.replace("https//", "https://");
+
+    const convertedSales = company.company_sales.includes("(")
+      ? company.company_sales.split("(")[0]
+      : company.company_sales;
+
+    console.log(truncatedName);
+    console.log(convertedImg);
+
     companyContainer.innerHTML = `
           <div class="company-icon-section">
             <div style="width: 50%;">
             <img src="${
-              company.company_img_url || "/static/ETF/images/Dopany.svg"
-            }" alt="icon SVG" style="max-width: 100%; height: auto;">
+              convertedImg || "/static/ETF/images/Dopany.svg"
+            }" style="max-width: 100%; height: auto;">
             </div>
           </div>
           <div class="company-content-section">
@@ -293,7 +316,7 @@ displayCompanies = (data) => {
                 <ul>
                   <li>${company.industry_name.split(">")[0]}</li>
                   <li>${company.industry_name.split(">")[1]}</li>
-                  <li>${company.company_sales ? company.company_sales : ""}</li>
+                  <li>${convertedSales ? convertedSales : ""}</li>
                   <li>${company.company_size ? company.company_size : ""}</li>
                 </ul>
               </div>
