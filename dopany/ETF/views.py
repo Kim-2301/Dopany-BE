@@ -23,6 +23,13 @@ class DomainNameView(APIView):
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def get_domain_names(self):
+        try:
+            # 모든 domain_name 가져오기
+            domain_names = Domain.objects.values_list('domain_name', flat=True)
+            return list(domain_names), None
+        except Exception as e:
+            return [], e
 
 class ETFInfoView(APIView):
     @swagger_auto_schema(
@@ -36,13 +43,14 @@ class ETFInfoView(APIView):
     def get(self, request):
         try:
             # request에서 domain_name과 time_unit get
-            domain_name = request.GET.get('domain-name', 'IT')   # default는 IT
-            time_unit = request.GET.get('time-unit', 'day')      # default는 day
-            
+            domain_name = request.GET.get('domain-name', 'IT').strip()   # default는 IT
+            time_unit = request.GET.get('time-unit', 'day').strip()      # default는 day
+
             # domain_name에 속하는 Etf정보 get
             domain = Domain.objects.get(domain_name=domain_name)
 
             etf_products = EtfProduct.objects.filter(domain=domain)
+
             etf_info = []
 
             for etf_product in etf_products:
@@ -68,8 +76,8 @@ class ETFInfoView(APIView):
                 etf_info.append({
                     "etf_name": etf_product.etf_product_name,
                     "etf_major_company": list(major_companies),
-                    "transaction_dates": transaction_dates,
-                    "closing_prices": closing_prices,
+                    "transaction_date": transaction_dates,
+                    "closing_price": closing_prices,
                     "time_avg" : etf_avg
                 })
                 
@@ -98,19 +106,22 @@ class CompanyInfoView(APIView):
     def get(self, request):
         try:
             # request에서 domain_name get
-            domain_name = request.GET.get('domain-name','IT')
-            
+            domain_name = request.GET.get('domain-name','IT').strip()
+
             domain= Domain.objects.get(domain_name=domain_name)
-            industries = Industry.objects.filter(domains=domain)      
+
+            industries = Industry.objects.filter(domains=domain)
+ 
             domain_companies_info = []
             
             for industry in industries:
                 companies = Company.objects.filter(industries=industry)
+
                 company_names = [company.company_name for company in companies]
                 
                 domain_companies_info.append({
                     "industry_name": industry.industry_name,
-                    "company_names": company_names,
+                    "company_name": company_names,
                 })
             
             response_data = {
@@ -125,7 +136,8 @@ class CompanyInfoView(APIView):
             return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def index(request):
-    domains = ['domain1', 'domain2', 'domain3']
+    domain_view = DomainNameView()
+    domains, _ = domain_view.get_domain_names()  # Retrieve domains internally
 
     return render(request, 'ETF/domain_index.html', {
         'etf_container': 'ETF/etf_container.html',

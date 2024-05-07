@@ -1,22 +1,30 @@
-let currDomainName = "";
-let currTimeUnit = "day";
-let etfsGraphColors = {};
+var EtfApp = EtfApp || {}; // Namespace
+
+EtfApp.currDomainName = "IT";
+EtfApp.currTimeUnit = "day";
+EtfApp.etfsGraphColors = {};
+EtfApp.etfChart = null;
 
 $(document).ready(function () {
-  currDomainName = requestETFByTime(currTimeUnit);
+  requestETFByTime("", EtfApp.currTimeUnit);
+  document.querySelector(".dropdown__text").textContent = "IT";
   setSelectDomainBtn();
   setSelectTimeBtn();
   requestCompaniesByDomain();
 });
 
 setSelectDomainBtn = () => {
-  etfsGraphColors = {};
+  EtfApp.etfsGraphColors = {};
 
   const buttons = document.querySelectorAll(".domain-select-btn");
   buttons.forEach(function (button) {
     button.addEventListener("click", function () {
       document.querySelector(".dropdown__text").textContent = this.textContent;
       document.getElementById("dropdown").checked = false;
+      EtfApp.currDomainName = this.textContent;
+      setSelectDay();
+      requestETFByTime(EtfApp.currDomainName, EtfApp.currTimeUnit);
+      requestCompaniesByDomain(EtfApp.currDomainName);
     });
 
     button.onmouseover = function () {
@@ -34,8 +42,31 @@ setSelectDomainBtn = () => {
   });
 };
 
-setSelectTimeBtn = () => {
+setSelectDay = () => {
   const slider = document.querySelector(".slider");
+  slider.style.left = "2px"; // 왼쪽
+  slider.textContent = "일";
+
+  EtfApp.currTimeUnit = "day";
+};
+
+setSelectWeek = () => {
+  const slider = document.querySelector(".slider");
+  slider.style.left = "30px"; // 중간
+  slider.textContent = "주";
+
+  EtfApp.currTimeUnit = "week";
+};
+
+setSelectMonth = () => {
+  const slider = document.querySelector(".slider");
+  slider.style.left = "58px"; // 오른쪽
+  slider.textContent = "월";
+
+  EtfApp.currTimeUnit = "month";
+};
+
+setSelectTimeBtn = () => {
   const switchContainer = document.querySelector(".switch");
 
   switchContainer.addEventListener("click", function (event) {
@@ -44,36 +75,31 @@ setSelectTimeBtn = () => {
     const switchWidth = switchRect.width;
 
     if (clickX < switchWidth / 3) {
-      slider.style.left = "2px"; // 왼쪽
-      slider.textContent = "일";
-
-      requestETFByTime("day");
+      setSelectDay();
+      requestETFByTime(EtfApp.currDomainName, EtfApp.currTimeUnit);
     } else if (clickX < (2 * switchWidth) / 3) {
-      slider.style.left = "30px"; // 중간
-      slider.textContent = "주";
-
-      requestETFByTime("week");
+      setSelectWeek();
+      requestETFByTime(EtfApp.currDomainName, EtfApp.currTimeUnit);
     } else {
-      slider.style.left = "58px"; // 오른쪽
-      slider.textContent = "월";
-
-      requestETFByTime("month");
+      setSelectMonth();
+      requestETFByTime(EtfApp.currDomainName, EtfApp.currTimeUnit);
     }
   });
 };
 
-requestETFByTime = (timeUnit) => {
-  var domainName = currDomainName; // 도메인 이름 예시로 설정
-
+requestETFByTime = (domainName, timeUnit) => {
   $.ajax({
-    url: "/app_name?domain-name=" + domainName + "&time-unit=" + timeUnit,
+    url: "/etf/get_ETF",
     type: "GET",
     dataType: "json",
+    data: {
+      "domain-name": domainName || "IT",
+      "time-unit": timeUnit || "day",
+    },
     success: function (response) {
       console.log(response);
       displayETFChart(response);
       displayETFDesc(response);
-      return data.etf_info[0].etf_name;
     },
     error: function (xhr, status, error) {
       displayEmptyChart();
@@ -127,15 +153,20 @@ displayEmptyChart = () => {
 };
 
 displayETFChart = (data) => {
-  const canvas = $("#etf-chart")[0]; // DOM 요소로 접근
+  const canvas = $("#etf-chart").get(0); // DOM 요소로 접근
   const ctx = canvas.getContext("2d"); // 2D 컨텍스트 가져오기
 
+  if (EtfApp.etfChart) {
+    EtfApp.etfChart.destroy();
+  }
+
   const etfDatasets = data.etf_info.map((etf) => {
+    console.log(etf);
     return {
       label: etf.etf_name,
       data: etf.closing_price.map((price, index) => ({
         x: etf.transaction_date[index],
-        y: parseFloat(price.replace("원", "")),
+        y: price,
       })),
       fill: false,
       borderColor: getRandomColor(etf.etf_name), // 각 선의 색상을 랜덤으로 생성
@@ -150,11 +181,11 @@ displayETFChart = (data) => {
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
-    etfsGraphColors[etf_name] = color;
+    EtfApp.etfsGraphColors[etf_name] = color;
     return color;
   }
 
-  const chart = new Chart(ctx, {
+  EtfApp.etfChart = new Chart(ctx, {
     type: "line",
     data: {
       datasets: etfDatasets,
@@ -184,23 +215,24 @@ displayETFDesc = (data) => {
       width: "10px",
       height: "10px",
       "border-radius": "50%",
-      "background-color": etfsGraphColors[etf.etf_name],
+      "background-color": EtfApp.etfsGraphColors[etf.etf_name],
       "margin-right": "5px",
     });
     var itemHTML = $("<li></li>")
       .append(circle)
       .append(etf.etf_name + "   " + etf.etf_major_company.join(", "));
-    list.append(itemHTML);
+    infoDiv.append(itemHTML);
   });
 };
 
-requestCompaniesByDomain = () => {
-  let domainName = currDomainName;
-
+requestCompaniesByDomain = (domainName) => {
   $.ajax({
-    url: "/app_name?domain-name=" + domainName,
+    url: "/etf/get_company",
     type: "GET",
     dataType: "json",
+    data: {
+      "domain-name": domainName || "IT",
+    },
     success: function (response) {
       displayCompanies(response);
     },
@@ -213,13 +245,20 @@ requestCompaniesByDomain = () => {
 };
 
 displayCompanies = (data) => {
-  const mainContainer = document.getElementById("company-body-section");
+  const mainContainer = document.getElementById("company-grid-section");
   mainContainer.innerHTML = ""; // 기존 내용 초기화
 
   data.domain_companies_info.forEach((company) => {
     const companyContainer = document.createElement("div");
     companyContainer.className = "company-container";
     companyContainer.style.zIndex = "10";
+
+    const maxLength = 10; // 최대 길이 설정
+    const truncatedName =
+      String(company.company_name).length > maxLength
+        ? String(company.company_name).substring(0, maxLength) + "..."
+        : company.company_name;
+
     companyContainer.innerHTML = `
           <div class="company-icon-section">
             <div style="width: 50%;">
@@ -230,13 +269,14 @@ displayCompanies = (data) => {
           </div>
           <div class="company-content-section">
               <div class="company-title-article">
-                ${company.company_name}
+                ${truncatedName}
               </div>
-              <div>
-                <ul class="company-description-article" style="margin: 0">
-                  <li>${company.industry_name}</li>
-                  <li>${company.company_sales}</li>
-                  <li>${company.company_size}</li>
+              <div class="company-description-article">
+                <ul>
+                  <li>${company.industry_name.split(">")[0]}</li>
+                  <li>${company.industry_name.split(">")[1]}</li>
+                  <li>${company.company_sales ? company.company_sales : ""}</li>
+                  <li>${company.company_size ? company.company_size : ""}</li>
                 </ul>
               </div>
           </div>
