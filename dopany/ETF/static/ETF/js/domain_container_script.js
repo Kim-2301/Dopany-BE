@@ -4,6 +4,9 @@ EtfApp.currDomainName = "IT";
 EtfApp.currTimeUnit = "day";
 EtfApp.etfsGraphColors = {};
 EtfApp.etfChart = null;
+EtfApp.currentPage = 1;
+EtfApp.itemsPerPage = 10; // 한 페이지에 표시할 회사 수
+EtfApp.companiesInfo = null;
 
 $(document).ready(function () {
   requestETFByTime("", EtfApp.currTimeUnit);
@@ -263,7 +266,9 @@ requestCompaniesByDomain = (domainName) => {
       "domain-name": domainName || "IT",
     },
     success: function (response) {
-      displayCompanies(response);
+      // displayCompanies(response);
+      EtfApp.companiesInfo = response;
+      displayCompanies();
     },
     error: function (xhr, status, error) {
       console.error(
@@ -273,16 +278,22 @@ requestCompaniesByDomain = (domainName) => {
   });
 };
 
-displayCompanies = (data) => {
+function displayCompanies() {
   const mainContainer = document.getElementById("company-grid-section");
-  mainContainer.innerHTML = ""; // 기존 내용 초기화
+  mainContainer.innerHTML = "";
 
-  console.log("startdats");
-  data.domain_companies_info.forEach((company) => {
+  // 현재 페이지에 해당하는 데이터만 필터링
+  const startIndex = (EtfApp.currentPage - 1) * EtfApp.itemsPerPage;
+  const endIndex = startIndex + EtfApp.itemsPerPage;
+  const pageData = EtfApp.companiesInfo.domain_companies_info.slice(
+    startIndex,
+    endIndex
+  );
+
+  pageData.forEach((company) => {
     const companyContainer = document.createElement("div");
     companyContainer.className = "company-container";
     companyContainer.style.zIndex = "10";
-
     const maxLength = 10; // 최대 길이 설정
     const truncatedName =
       String(company.company_name).length > maxLength
@@ -322,7 +333,20 @@ displayCompanies = (data) => {
               </div>
           </div>
       `;
-
     mainContainer.appendChild(companyContainer);
   });
-};
+
+  document.getElementById("page-indicator").innerText = EtfApp.currentPage;
+}
+
+function nextPage() {
+  EtfApp.currentPage++;
+  displayCompanies();
+}
+
+function previousPage() {
+  if (EtfApp.currentPage > 1) {
+    EtfApp.currentPage--;
+    displayCompanies();
+  }
+}
