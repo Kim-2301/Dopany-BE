@@ -1,0 +1,82 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'ETF/css/styles.css' %}" />
+  </head>
+  <body>
+    <div id="etf-container">
+      <div id="etf-filter-section">
+        <div id="dropdown-container">
+          <div class="dropdown">
+            <input type="checkbox" id="dropdown" />
+
+            <label class="dropdown__face" for="dropdown">
+              <div class="dropdown__text">Domain</div>
+
+              <div class="dropdown__arrow"></div>
+            </label>
+
+            <ul class="dropdown__items">
+              {% for domain in domains %}
+              <button
+                class="domain-select-btn"
+                style="
+                  padding: 10px 20px;
+                  background-color: #f39189;
+                  color: white;
+                  font-size: 12px;
+                  border: none;
+                  cursor: pointer;
+                  border-radius: 12px;
+                  transition: background-color 0.3s;
+                "
+              >
+                {{ domain }}
+              </button>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <svg>
+            <filter id="goo">
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="5"
+                result="blur"
+              />
+              <feColorMatrix
+                in="blur"
+                type="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+                result="goo"
+              />
+              <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+          </svg>
+        </div>
+        <div class="switch">
+          <div class="labels">
+            <span>일</span>
+            <span>주</span>
+            <span>월</span>
+          </div>
+          <button type="button" class="slider">일</button>
+        </div>
+      </div>
+      <div id="etf-content-section">
+        <div id="etf-graph-article">
+          <canvas id="etf-chart"></canvas>
+        </div>
+        <div id="etf-description-article">
+          <ul id="etf-info">
+            도메인을 선택해주세요.
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
