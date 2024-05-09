@@ -1,11 +1,9 @@
-import pandas as pd
-from datetime import datetime
 from django.db import transaction
 from ETF.models import *
 from django.db.models import Q
 from django.db import transaction
 
-from ETF.utils.decorator import singleton
+from utils.decorator import singleton
 
 
 @singleton

@@ -23,12 +23,6 @@ class Command(BaseCommand):
         industries_df = preprocessor.add_domain_id_from_name(industries_df)
         num_input, num_created, num_updated = loader.load_industry_from_df(industries_df)
         self.stdout.write(self.style.SUCCESS(f"Number of industries input: {num_input}, Number of industries created: {num_created}, Number of industries updated: {num_updated}"))
-
-        # load company
-        companies_df_list = converter.convert_companies_csv_to_df('ETF/mapper/initial_data/companies')
-        companies_df = pd.concat(companies_df_list)
-        num_input, num_created, num_updated = loader.load_company_from_df(companies_df)
-        self.stdout.write(self.style.SUCCESS(f"Number of companies input: {num_input}, Number of companies created: {num_created}, Number of companies updated: {num_updated}"))
         
         # load etf_product
         etf_products_df = converter.convert_csv_to_df('ETF/mapper/initial_data/domain_etf_name_map.csv')
