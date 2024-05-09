@@ -1,0 +1,68 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'ETF/css/company_styles.css' %}" />
+  </head>
+  <body>
+    <div class="content-sub-section">
+      <div class="head-article">
+        <div style="margin-right: 15px">기업 주가</div>
+        <div style="width: 100%; padding-top: 8px">
+          <hr width="100%" size="5px" color="#CFCECE" noshade />
+        </div>
+      </div>
+      <div class="content-article">
+        <canvas id="stock-chart"></canvas>
+      </div>
+    </div>
+    <div id="info-grid-section">
+      <div class="content-sub-section">
+        <div class="head-article">
+          <div style="margin-right: 15px">기업 평가</div>
+          <div style="width: 100%; padding-top: 8px">
+            <hr width="100%" size="5px" color="#CFCECE" noshade />
+          </div>
+        </div>
+        <div class="content-article">
+          <div id="keyword-cloud"></div>
+        </div>
+      </div>
+      <div class="content-sub-section">
+        <div class="head-article">
+          <div style="margin-right: 15px">기업 뉴스</div>
+          <div style="width: 100%; padding-top: 8px">
+            <hr width="100%" size="5px" color="#CFCECE" noshade />
+          </div>
+        </div>
+        <div class="content-article">
+          <div id="news-list">
+            <a
+              class="card"
+              href="http://naver.com"
+              target="_blank"
+              style="text-decoration: none"
+            >
+              <h1>title</h1>
+              <p>posted_at</p>
+              <p>text</p>
+            </a>
+            <a
+              class="card"
+              href="http://naver.com"
+              target="_blank"
+              style="text-decoration: none"
+            >
+              <h1>title</h1>
+              <p>posted_at</p>
+              <p>text</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
