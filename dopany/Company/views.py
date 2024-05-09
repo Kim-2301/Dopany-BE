@@ -70,3 +70,19 @@ class CompanyInfoAPI(APIView):
             return JsonResponse({'data': company_info}, json_dumps_params={'ensure_ascii': False}, status=status.HTTP_200_OK)
         except Company.DoesNotExist:
             return JsonResponse({"message": "등록된 기업 정보가 없습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# def company_index(request):
+#     return render(request, 'Company/company_index.html', {
+#         'company_detail': 'Company/company_detail.html',
+#         'company_recruit': 'Company/company_recruit.html'
+#     })
+
+from django.shortcuts import get_object_or_404
+def index(request, company_name):
+    print(company_name)
+    company = get_object_or_404(Company, company_name=company_name)
+    return render(request, 'Company/company_index.html', {
+        'company_detail': 'Company/company_detail.html',
+        'company_recruit': 'Company/company_recruit.html',
+        'company_info': company
+    })

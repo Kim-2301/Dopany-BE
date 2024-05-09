@@ -6,12 +6,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dopany</title>
-    <link rel="stylesheet" href="{% static 'ETF/css/company_styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'Company/css/company_styles.css' %}" />
 </head>
 <body>
   <div id="top-section">
     <div id="svg-article">
-      <img src="{% static 'ETF/images/Dopany_small.svg' %}" />
+      <img src="{% static 'Company/images/Dopany_small.svg' %}" />
     </div>
   </div>
   <div id="container">
@@ -23,7 +23,7 @@
                 <img src="http://{{ http_removed }}" alt="Company Logo" />
             {% endwith %}
           {% else %}
-            <img src="{% static 'ETF/images/Dopany_small.svg' %}" />
+            <img src="{% static 'Company/images/Dopany_small.svg' %}" />
           {% endif %}
         </div>
       </div>
@@ -90,6 +90,6 @@
         companyName: "{{ company_info.company_name|escapejs }}",
       };
     </script>
-    <script src="{% static 'ETF/js/company_script.js' %}"></script>
+    <script src="{% static 'Company/js/company_script.js' %}"></script>
   </body>
 </html>
