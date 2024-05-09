@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from ETF.models import *
 
-from ETF.utils.decorator import singleton
+from utils.decorator import singleton
 
 @singleton
 class LoadPreprocessor:
