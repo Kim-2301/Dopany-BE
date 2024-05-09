@@ -5,14 +5,14 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="TrendyDE-Dopany",
-      default_version='v1',
-      description="도메인 기반 채용 공고 조회 사이트 API 문서",
-      license=openapi.License(name="BSD License"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="TrendyDE-Dopany",
+        default_version='v1',
+        description="도메인 기반 채용 공고 조회 사이트 API 문서",
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
@@ -23,5 +23,6 @@ urlpatterns = [
     
     #apps
     path("admin/", admin.site.urls),
-    path("etf/",include('ETF.urls')),
+    #path("etf/",include('ETF.urls')),
+    path("company/",include('Company.urls')),
 ]
