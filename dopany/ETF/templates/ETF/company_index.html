@@ -1,0 +1,95 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dopany</title>
+    <link rel="stylesheet" href="{% static 'ETF/css/company_styles.css' %}" />
+</head>
+<body>
+  <div id="top-section">
+    <div id="svg-article">
+      <img src="{% static 'ETF/images/Dopany_small.svg' %}" />
+    </div>
+  </div>
+  <div id="container">
+    <div id="head-container">
+      <div id="logo-section">
+        <div id="svg-article">
+          {% if company_info.company_img_url %}
+            {% with http_removed=company_info.company_img_url|slice:"7:" %}
+                <img src="http://{{ http_removed }}" alt="Company Logo" />
+            {% endwith %}
+          {% else %}
+            <img src="{% static 'ETF/images/Dopany_small.svg' %}" />
+          {% endif %}
+        </div>
+      </div>
+      <div id="summary-container">
+        <div id="divider"></div>
+        <div id="summary-section">
+          <div id="title-section">
+            <span style="font-size: 30px; font-weight: bold;">{{ company_info.company_name }}</span>
+            <span style="color: #929292;">{{ company_info.domain.domain_name }}</span>
+          </div>
+          <div id="attr-section">
+            <a href='{{ company_info.company_url }}' target="_blank">기업 홈페이지</a>
+            <span>{{ company_info.company_addr }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="body-container">
+      <div id="tab-section">
+        <div id="info-btn" class="tab" onclick="activateTab(event, 'tab1')">기업 정보</div>
+        <div id="recruit-btn" class="tab" onclick="activateTab(event, 'tab2')">채용 공고</div>
+      </div>
+      <div id="content-section">
+        <div id="tab1" class="tab-content">
+          {% include company_detail %}
+        </div>
+        <div id="tab2" class="tab-content" style="display: none;">
+          {% include company_recruit %}
+        </div>
+      </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+  <!-- <script>
+    function activateTab(event, tabId) {
+      var i, tabcontent, tablinks;
+
+      tabcontent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+          tablinks = document.getElementsByClassName("tab");
+      }
+
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].style.backgroundColor = 'white'; // 기본 비활성 색상
+        tablinks[i].style.color = 'black'; // 기본 텍스트 색상
+      }
+
+      document.getElementById(tabId).style.display = "block";
+
+      event.currentTarget.style.backgroundColor = '#f39189';
+      event.currentTarget.style.color = 'white';
+    }
+
+    document.getElementsByClassName("tab")[0].click();
+  </script> -->
+    <script>
+      var companyInfo = {
+        companyName: "{{ company_info.company_name|escapejs }}",
+      };
+    </script>
+    <script src="{% static 'ETF/js/company_script.js' %}"></script>
+  </body>
+</html>

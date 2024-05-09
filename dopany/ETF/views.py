@@ -168,7 +168,23 @@ def index(request):
     domains, _ = domain_view.get_domain_names()  # Retrieve domains internally
 
     return render(request, 'ETF/domain_index.html', {
-        'etf_container': 'ETF/etf_container.html',
-        'company_container': 'ETF/company_container.html',
+        'domain_etf': 'ETF/domain_etf.html',
+        'domain_company': 'ETF/domain_company.html',
         'domains': domains
+    })
+
+# def company_index(request):
+#     return render(request, 'ETF/company_index.html', {
+#         'company_detail': 'ETF/company_detail.html',
+#         'company_recruit': 'ETF/company_recruit.html'
+#     })
+
+from django.shortcuts import get_object_or_404
+def company_index(request, company_name):
+    print(company_name)
+    company = get_object_or_404(Company, company_name=company_name)
+    return render(request, 'ETF/company_index.html', {
+        'company_detail': 'ETF/company_detail.html',
+        'company_recruit': 'ETF/company_recruit.html',
+        'company_info': company
     })

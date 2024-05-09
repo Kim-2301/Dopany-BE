@@ -6,7 +6,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dopany</title>
-    <link rel="stylesheet" href="{% static 'ETF/css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'ETF/css/domain_styles.css' %}" />
   </head>
   <body>
     <div id="container">
@@ -23,7 +23,7 @@
               금융시장 ETF 흐름을 통해 Domain의 트렌드를 확인해보세요!
             </div>
           </div>
-          <div id="etf-body-section">{% include etf_container %}</div>
+          <div id="etf-body-section">{% include domain_etf %}</div>
         </div>
       </div>
       <div id="foot-container">
@@ -34,7 +34,7 @@
             <hr width="100%" size="5px" color="#CFCECE" noshade />
           </div>
         </div>
-        {% include company_container %}
+        {% include domain_company %}
       </div>
     </div>
 
@@ -42,6 +42,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
-    <script src="{% static 'ETF/js/domain_container_script.js' %}"></script>
+    <script src="{% static 'ETF/js/domain_script.js' %}"></script>
   </body>
 </html>
