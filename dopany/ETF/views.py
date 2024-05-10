@@ -168,7 +168,7 @@ def index(request):
     domains, _ = domain_view.get_domain_names()  # Retrieve domains internally
 
     return render(request, 'ETF/domain_index.html', {
-        'etf_container': 'ETF/etf_container.html',
-        'company_container': 'ETF/company_container.html',
+        'domain_etf': 'ETF/domain_etf.html',
+        'domain_company': 'ETF/domain_company.html',
         'domains': domains
     })

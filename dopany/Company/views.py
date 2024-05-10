@@ -73,6 +73,7 @@ class CompanyInfoAPI(APIView):
         except Company.DoesNotExist:
             return JsonResponse({"message": "등록된 기업 정보가 없습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class RecruitmentView(APIView):
     @swagger_auto_schema(
         operation_description="회사별 채용 공고 요청",
@@ -130,3 +131,19 @@ class RecruitmentView(APIView):
                 }
             )
         return company_recruitments
+
+# def company_index(request):
+#     return render(request, 'Company/company_index.html', {
+#         'company_detail': 'Company/company_detail.html',
+#         'company_recruit': 'Company/company_recruit.html'
+#     })
+
+from django.shortcuts import get_object_or_404
+def index(request, company_name):
+    print(company_name)
+    company = get_object_or_404(Company, company_name=company_name)
+    return render(request, 'Company/company_index.html', {
+        'company_detail': 'Company/company_detail.html',
+        'company_recruit': 'Company/company_recruit.html',
+        'company_info': company
+    })

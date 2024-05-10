@@ -1,15 +1,14 @@
 from django.core.management.base import BaseCommand
 import pandas as pd
-from ETF.mapper.loader import DataLoader
-from ETF.mapper.constants import *
-from ETF.mapper.converter import Converter
+from Company.mapper.loader import DataLoader
+from Company.mapper.converter import Converter
 
 class Command(BaseCommand):
     help = 'Loads data into the system.'
 
     def handle(self, *args, **options):
         converter = Converter()
-        companies_df_list = converter.convert_companies_csv_to_df('ETF/mapper/initial_data/companies')
+        companies_df_list = converter.convert_companies_csv_to_df('Company/mapper/initial_data/companies')
         companies_df = pd.concat(companies_df_list)
 
         loader = DataLoader()

@@ -294,6 +294,13 @@ function displayCompanies() {
     const companyContainer = document.createElement("div");
     companyContainer.className = "company-container";
     companyContainer.style.zIndex = "10";
+    companyContainer.style.cursor = "pointer";
+
+    companyContainer.addEventListener("click", () => {
+      window.location.href = `/etf/company_index/${company.company_name}`;
+      // window.location.assign = `/etf/company_index/${company.company_name}`;
+    });
+
     const maxLength = 10; // 최대 길이 설정
     const truncatedName =
       String(company.company_name).length > maxLength
