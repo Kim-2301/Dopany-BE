@@ -1,6 +1,21 @@
 from django.db import models
 from ETF.models import Industry
 
+'''
+Company {
+    company_id	            int         PK	        자동생성(ex. 행번호)
+    created_at		        time                    레코드 생성 시간
+    updated_at		        time                    레코드 수정 시간
+    company_name	        string      unique	    기업명
+    company_size		    string                  기업 규모(ex. 대기업, 중소기업)
+    company_introduction	string              	기업 설명
+    company_sales		    string                  매출액
+    company_url		        url                     기업 사이트 url
+    company_img_url		    url                     기업 사진 url
+    company_addr            string                  기업 주소
+    industry_id             int         FK          산업 id
+}
+'''
 class Company(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -13,7 +28,86 @@ class Company(models.Model):
     company_img_url = models.URLField()
     company_addr = models.CharField(max_length=255)
     industries = models.ManyToManyField(Industry, related_name='companies')
+    
+    def __str__(self):
+        return f"{self.company_name}"
 
+'''
+Job {
+    job_id      int     pk
+    job_name    string  unique
+    created_at  time
+    updated_at  time
+}
+'''
+class Job(models.Model):
+    job_id = models.AutoField(primary_key=True)
+    job_name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['job_name'], name='unique_job_name')
+        ]
+
+    def __str__(self):
+        return f"{self.job_name}"
+
+
+'''
+Skill {
+    skill_id      int     pk
+    skill_name    string  unique
+    created_at    time
+    updated_at    time
+}
+'''
+class Skill(models.Model):
+    skill_id = models.AutoField(primary_key=True)
+    skill_name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['skill_name'], name='unique_skill_name')
+        ]
+
+    def __str__(self):
+        return f"{self.skill_name}"
+'''
+Recruitment {
+    recruitment_id      int     pk      자동생성(ex. 행번호)
+    recruitment_title   sting           공고 제목
+    url                 string          공고 주소
+    created_at          time            레코드 생성 시간
+    updated_at          time            레코드 수정 시간
+    career              string          요구 경력
+    education           string          요구 학력
+    due_date            date            마감 기한
+    company_id          int     fk      기업 id
+    job_id              int     fk      직무 id
+    skill_id            int     fk      스킬 id
+}
+'''
+class Recruitment(models.Model):
+    recruitment_id = models.AutoField(primary_key=True)
+    recruitment_title = models.CharField(max_length=255)
+    url = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    career = models.CharField(max_length=255)
+    education = models.CharField(max_length=255)
+    due_date = models.DateTimeField(null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    jobs = models.ManyToManyField(Job, related_name='recruitments')
+    skills = models.ManyToManyField(Skill, related_name='recruitments')
+
+    def __str__(self):
+        job_names = ",".join([job.job_name for job in self.jobs.all()])
+        return f"title: {self.recruitment_title}, jobs: {job_names}"
+      
 class ProsReview(models.Model):
     pros_id = models.IntegerField(primary_key=True)
     company_id = models.ForeignKey(Company, on_delete=models.CASCADE)
