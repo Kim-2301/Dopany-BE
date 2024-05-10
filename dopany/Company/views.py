@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from .models import Company, Stock, ProsReview, ProsWord, ConsReview, ConsWord, News
+from .models import Recruitment, Stock, ProsReview, ProsWord, ConsReview, ConsWord, News
+from ETF.models import Company
 from rest_framework.views import APIView 
 from django.http import JsonResponse, HttpResponse
 from drf_yasg.utils import swagger_auto_schema
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from drf_yasg import openapi
 import json
@@ -11,7 +13,7 @@ from rest_framework import status
 
 class CompanyInfoAPI(APIView):
     company_name = openapi.Parameter('company_name', openapi.IN_QUERY, description='company_name', required=True, type=openapi.TYPE_STRING)
-    @swagger_auto_schema(operation_description="회사 정보 API", manual_parameters=[company_name], tags=['메인_회사정보'], reponses={200: 'Success'})
+    @swagger_auto_schema(operation_description="회사 정보 API", manual_parameters=[company_name], tags=['company'], reponses={200: 'Success'})
     def get(self, request):
         company_insert_name = request.GET.get('company_name')
 
@@ -70,6 +72,65 @@ class CompanyInfoAPI(APIView):
             return JsonResponse({'data': company_info}, json_dumps_params={'ensure_ascii': False}, status=status.HTTP_200_OK)
         except Company.DoesNotExist:
             return JsonResponse({"message": "등록된 기업 정보가 없습니다."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RecruitmentView(APIView):
+    @swagger_auto_schema(
+        operation_description="회사별 채용 공고 요청",
+        reponses={200: 'Success', 400: 'Bad Request', 404: 'Not Found', 500: 'Internal Server Error'},
+        manual_parameters=[
+            openapi.Parameter(
+                'company_name',
+                openapi.IN_QUERY,
+                description='company_name', required=True, type=openapi.TYPE_STRING
+            )
+        ],
+        tags=['company'],
+    )
+    def get(self, request):
+        request_company_name = request.GET.get('company_name')
+        if not request_company_name:
+            return Response({"message": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            target_company = Company.objects.get(company_name=request_company_name)
+            target_recruitments = Recruitment.objects.filter(company=target_company)
+            if not target_recruitments.exists():
+                raise Recruitment.DoesNotExist(f"{target_company.company_name}의 채용 공고가 없습니다.")
+
+            company_recruitments = self.make_company_recruitments_nested(target_recruitments)
+            return Response(
+                data={"company_recruitments": company_recruitments},
+                status=status.HTTP_200_OK
+            )
+        except Company.DoesNotExist:
+            return Response(
+                data={"message": "기업이 존재하지 않습니다."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Recruitment.DoesNotExist:
+            # 채용공고 없을 시 에러메시지보다는 채용공고가 없다는 내용의 페이지를 띄우는게 더 나아보임
+            return Response(
+                data={"message": "기업의 채용공고가 없습니다."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def make_company_recruitments_nested(self, recruitments):
+        company_recruitments = []
+        for recruitment in recruitments:
+            job_names = [job.job_name for job in recruitment.jobs.all()]
+            skill_names = [skill.skill_name for skill in recruitment.skills.all()]
+            company_recruitments.append(
+                {
+                    "recruitment_title": recruitment.recruitment_title,
+                    "recruitment_url": recruitment.url,
+                    "career": recruitment.career,
+                    "education": recruitment.education,
+                    "due_date": recruitment.due_date,
+                    "job_names": job_names,
+                    "skill_names": skill_names
+                }
+            )
+        return company_recruitments
 
 # def company_index(request):
 #     return render(request, 'Company/company_index.html', {
