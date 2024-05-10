@@ -118,15 +118,15 @@ Company {
     industry_id             int         FK          산업 id
 }
 '''
-class Company(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    company_id = models.AutoField(primary_key=True)
-    company_name = models.CharField(max_length=255, unique=True)
-    company_size = models.CharField(max_length=255)
-    company_introduction = models.TextField()
-    company_sales = models.CharField(max_length=255)
-    company_url = models.URLField()
-    company_img_url = models.URLField()
-    company_addr = models.CharField(max_length=255)
-    industries = models.ManyToManyField(Industry, related_name='companies')
+# class Company(models.Model):
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     company_id = models.AutoField(primary_key=True)
+#     company_name = models.CharField(max_length=255, unique=True)
+#     company_size = models.CharField(max_length=255)
+#     company_introduction = models.TextField()
+#     company_sales = models.CharField(max_length=255)
+#     company_url = models.URLField()
+#     company_img_url = models.URLField()
+#     company_addr = models.CharField(max_length=255)
+#     industries = models.ManyToManyField(Industry, related_name='companies')
