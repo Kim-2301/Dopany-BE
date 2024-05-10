@@ -102,6 +102,8 @@ class Industry(models.Model):
     industry_name = models.CharField(max_length=255, unique=True)
     domains = models.ManyToManyField(Domain, related_name='industries')
 
+    def __str__(self):
+        return f"{self.industry_name}"
 
 '''
 Company {
@@ -130,3 +132,6 @@ class Company(models.Model):
     company_img_url = models.URLField()
     company_addr = models.CharField(max_length=255)
     industries = models.ManyToManyField(Industry, related_name='companies')
+
+    def __str__(self):
+        return f"{self.company_name}"

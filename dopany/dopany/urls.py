@@ -23,6 +23,6 @@ urlpatterns = [
     
     #apps
     path("admin/", admin.site.urls),
-    #path("etf/",include('ETF.urls')),
+    path("etf/",include('ETF.urls')),
     path("company/",include('Company.urls')),
 ]

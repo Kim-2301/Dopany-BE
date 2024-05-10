@@ -6,8 +6,9 @@
 # ]
 
 from django.urls import path
-from Company.views import CompanyInfoAPI
+from .views import CompanyInfoAPI, RecruitmentView
 
 urlpatterns = [
     path('' ,CompanyInfoAPI.as_view()),
+    path('recruitment',RecruitmentView.as_view(), name='api_5')
 ]
