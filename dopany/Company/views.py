@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from .models import Recruitment, Stock, ProsReview, ProsWord, ConsReview, ConsWord, News
-from ETF.models import Company
+from .models import *
 from rest_framework.views import APIView 
 from django.http import JsonResponse, HttpResponse
 from drf_yasg.utils import swagger_auto_schema
