@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
 import pandas as pd
-from ETF.mapper.loader import DataLoader
-from ETF.mapper.constants import *
-from ETF.mapper.converter import Converter
-from ETF.mapper.preprocessor import LoadPreprocessor
+from Company.mapper.loader import DataLoader
+from Company.mapper.converter import Converter
+from Company.mapper.preprocessor import LoadPreprocessor
 
 class Command(BaseCommand):
     help = 'Loads data into the system.'

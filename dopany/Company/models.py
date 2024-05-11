@@ -133,12 +133,14 @@ class ConsWord(models.Model):
     weight = models.IntegerField(default=0)
 
 class News(models.Model):
-    news_id = models.IntegerField(primary_key=True)
-    company_id = models.ForeignKey(Company, on_delete=models.CASCADE)
-    news_title = models.CharField(max_length=100)
+    news_id = models.AutoField(primary_key=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    news_title = models.CharField(max_length=255)
     news_text = models.TextField()
-    created_at = models.TimeField()
-    updated_at = models.TimeField()
+    news_url = models.URLField(max_length=512)
+    posted_at = models.DateTimeField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class Stock(models.Model):
     stock_id = models.AutoField(primary_key=True)

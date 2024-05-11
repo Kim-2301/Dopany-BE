@@ -126,7 +126,9 @@ class DataLoader:
             else:
                 due_date = None  # 파싱 실패 시 None 반환
 
+            company = Company.objects.get(company_id=row['company_id'])
             recruitment = existing_recruitments_dict.get(row['recruitment_title'])
+            
             if recruitment:
                 # 업데이트할 객체에 기존 기본 키 할당
                 recruitment.url = row['url']
@@ -141,6 +143,7 @@ class DataLoader:
                     career=row['career'],
                     education=row['education'],
                     due_date=due_date,
+                    company=company
                 )
                 new_recruitments.append(recruitment)
 
@@ -175,21 +178,23 @@ class DataLoader:
     
 
     def load_news_from_df(self, news_df):
-        news_df['posted_at'] = pd.to_datetime(news_df['posted_at'], errors='coerce')
-
+    
         news_objects = []
 
         # Assuming Company names are unique and already exist in the database
-        company_mapping = {company.name: company for company in Company.objects.all()}
+        company_mapping = {company.company_name: company for company in Company.objects.all()}
 
         for _, row in news_df.iterrows():
+            posted_at = pd.to_datetime(row['posted_at'], errors='coerce')
+            if pd.isna(posted_at):
+                posted_at = None
             company = company_mapping.get(row['company_name'])  # Get the Company instance from the mapping
 
             # Create a Recruitment instance for each row
             news = News(
                 news_title=row['news_title'],
                 news_url=row['news_url'],
-                posted_at=row['posted_at'],
+                posted_at=posted_at,
                 news_text=row['news_text'],
                 company=company  # Assign the foreign key relationship
             )
