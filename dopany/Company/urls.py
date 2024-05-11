@@ -11,7 +11,7 @@ from . import views
 
 urlpatterns = [
     path('' ,CompanyInfoAPI.as_view()),
-    path('recruitment',RecruitmentView.as_view(), name='api_5')
+    path('recruitment',RecruitmentView.as_view(), name='api_5'),
     # path('company/', views.index, name='company'),
     path('company/<str:company_name>/', views.index, name='company'),
 ]

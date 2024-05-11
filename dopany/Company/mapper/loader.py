@@ -5,7 +5,8 @@ from django.db import transaction
 
 from utils.decorator import singleton
 import pandas as pd
-
+import re
+from datetime import datetime
 
 @singleton
 class DataLoader:
@@ -97,43 +98,80 @@ class DataLoader:
 
         return len(stock_list), len(unique_to_create), len(to_update)
     
+    from django.db.models import Q
+
 
     def load_recruitment_from_df(self, recruitments_df):
-        with transaction.atomic():
-            recruitment_objects = [
-                Recruitment(
+        # 기존 레코드 식별
+        existing_recruitments_dict = {rec.recruitment_title: rec for rec in Recruitment.objects.filter(
+            recruitment_title__in=recruitments_df['recruitment_title'].tolist()
+        )}
+
+        new_recruitments = []
+        update_recruitments = []
+
+        job_mapping = {job.job_name: job for job in Job.objects.all()}
+        skill_mapping = {skill.skill_name: skill for skill in Skill.objects.all()}
+
+        current_year = datetime.now().year
+        for _, row in recruitments_df.iterrows():
+            match = re.search(r'(\d{2})/(\d{2})', row['due_date'])
+            if match:
+                date_formatted = f"{current_year}-{match.group(1)}-{match.group(2)}"
+                # datetime 객체로 변환 (연도는 기본값으로 현재 연도 사용)
+                date_obj = pd.to_datetime(date_formatted, format='%Y-%m-%d', errors='coerce')
+                if pd.notna(date_obj):
+                    # PostgreSQL datetime 포맷으로 변환 ('YYYY-MM-DD')
+                    due_date = date_obj.strftime('%Y-%m-%d')
+            else:
+                due_date = None  # 파싱 실패 시 None 반환
+
+            recruitment = existing_recruitments_dict.get(row['recruitment_title'])
+            if recruitment:
+                # 업데이트할 객체에 기존 기본 키 할당
+                recruitment.url = row['url']
+                recruitment.career = row['career']
+                recruitment.education = row['education']
+                recruitment.due_date=due_date
+                update_recruitments.append(recruitment)
+            else:
+                recruitment = Recruitment(
                     recruitment_title=row['recruitment_title'],
                     url=row['url'],
                     career=row['career'],
                     education=row['education'],
-                    due_date=pd.to_datetime(row['due_date'], errors='coerce', format='%m-%d'),
+                    due_date=due_date,
                 )
-                for _, row in recruitments_df.iterrows()
-            ]
+                new_recruitments.append(recruitment)
 
-            company_ids = recruitments_df['company_id'].tolist()
-            company_mapping = {id: Company.objects.get(id=id) for id in set(company_ids)}
+        # 신규 레코드 일괄 삽입
+        created_recruitments = Recruitment.objects.bulk_create(new_recruitments)
 
-            for recruitment, company_name in zip(recruitment_objects, company_ids):
-                recruitment.company = company_mapping[company_name]
-
-            Recruitment.objects.bulk_create(recruitment_objects)
-
-            recruitment_objects = Recruitment.objects.filter(
-                recruitment_title__in=recruitments_df['recruitment_title'].tolist()
+        # 기존 레코드 업데이트
+        if update_recruitments:
+            Recruitment.objects.bulk_update(
+                update_recruitments, ['url', 'career', 'education', 'due_date']
             )
 
-            job_mapping = {job.name: job for job in Job.objects.all()}
-            skill_mapping = {skill.name: skill for skill in Skill.objects.all()}
+        # 모든 레코드 병합 (신규 + 업데이트)하여 관계 업데이트
+        all_recruitments = created_recruitments + update_recruitments
 
-            for recruitment, row in zip(recruitment_objects, recruitments_df.itertuples(index=False)):
-                jobs_to_add = [job_mapping[name.strip()] for name in row.jobs.split(',') if name.strip() in job_mapping]
-                skills_to_add = [skill_mapping[name.strip()] for name in row.skills.split(',') if name.strip() in skill_mapping]
+        for recruitment, row in zip(all_recruitments, recruitments_df.itertuples(index=False)):
+            jobs_to_add = [
+                job_mapping[name.strip()]
+                for name in row.jobs.split(',')
+                if name.strip() in job_mapping
+            ]
+            skills_to_add = [
+                skill_mapping[name.strip()]
+                for name in row.skills.split(',')
+                if name.strip() in skill_mapping
+            ]
 
-                recruitment.jobs.add(*jobs_to_add)
-                recruitment.skills.add(*skills_to_add)
+            recruitment.jobs.set(jobs_to_add)
+            recruitment.skills.set(skills_to_add)
 
-        return len(recruitments_df)
+        return len(recruitments_df), len(new_recruitments), len(update_recruitments)
     
 
     def load_news_from_df(self, news_df):
@@ -166,6 +204,8 @@ class DataLoader:
     
 
     def load_job_from_df(self, jobs_df):
+        jobs_df = jobs_df[['job_name']]
+
         jobs_list = jobs_df.to_dict('records')
 
         existing_jobs = Job.objects.in_bulk(field_name='job_name')
@@ -193,6 +233,8 @@ class DataLoader:
 
 
     def load_skill_from_df(self, skills_df):
+        skills_df = skills_df[['skill_name']]
+
         skills_list = skills_df.to_dict('records')
 
         existing_skills = Skill.objects.in_bulk(field_name='skill_name')

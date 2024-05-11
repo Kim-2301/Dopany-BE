@@ -14,6 +14,6 @@ class Command(BaseCommand):
         recruitments_df = preprocessor.add_company_id_from_name(recruitments_df)
 
         loader = DataLoader()
-        num_input = loader.load_recruitment_from_df(recruitments_df)
-        
-        self.stdout.write(self.style.SUCCESS(f"Number of Recruitments input: {num_input}, Number of Recruitments created: {num_input}"))
+        num_input, num_created, num_updated = loader.load_recruitment_from_df(recruitments_df)
+
+        self.stdout.write(self.style.SUCCESS(f"Number of Recruitments input: {num_input}, Number of Recruitments created: {num_created}, Number of Recruitments updated: {num_updated}"))

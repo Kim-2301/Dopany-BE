@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import EtfPrice, EtfProduct, Domain, Company, Industry, EtfMajorCompany
+from .models import *
 from django.db.models import Avg
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
