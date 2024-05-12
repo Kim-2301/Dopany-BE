@@ -41,8 +41,8 @@ class Command(BaseCommand):
         num_input, num_created, num_updated = loader.load_recruitment_from_df(recruitments_df)
         self.stdout.write(self.style.SUCCESS(f"Number of Recruitments input: {num_input}, Number of Recruitments created: {num_created}, Number of Recruitments updated: {num_updated}"))
 
-        # load recruitment
-        recruitments_df = converter.convert_csv_to_df('Company/mapper/initial_data/existing_companies_recruitments.csv')
-        recruitments_df = preprocessor.add_company_id_from_name(recruitments_df)
-        num_input, num_created, num_updated = loader.load_recruitment_from_df(recruitments_df)
-        self.stdout.write(self.style.SUCCESS(f"Number of Recruitments input: {num_input}, Number of Recruitments created: {num_created}, Number of Recruitments updated: {num_updated}"))
+        # load news
+        news_df_list = converter.convert_news_csv_to_df('Company/mapper/initial_data/news')
+        news_df = pd.concat(news_df_list)
+        num_input = loader.load_news_from_df(news_df)
+        self.stdout.write(self.style.SUCCESS(f"Number of News input: {num_input}, Number of News created: {num_input}"))

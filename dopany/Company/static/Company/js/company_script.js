@@ -4,16 +4,13 @@
 
 var CompanyApp = CompanyApp || {}; // Namespace
 
-CompanyApp.companyDetails = null;
+CompanyApp.companyDetails = {};
 CompanyApp.stockChart = null;
 
 $(document).ready(function () {
   setTabs();
   requestCompanyDetails();
-  resizeWordCloud();
-  displayWordCloud();
-  displayCompanyNews();
-  displayRecruits();
+  requestCompanyRecruitments();
 });
 
 function activateTab(event, tabId) {
@@ -56,7 +53,7 @@ function setTabs() {
 requestCompanyDetails = () => {
   console.log(companyInfo.companyName);
   $.ajax({
-    url: "/etf",
+    url: "/company",
     type: "GET",
     dataType: "json",
     data: {
@@ -64,14 +61,41 @@ requestCompanyDetails = () => {
     },
     success: function (response) {
       console.log(response);
-      CompanyApp.companyDetails = response.company_info;
-      displayStockChart(response.company_info);
+      CompanyApp.companyDetails = response.data;
+      displayStockChart(response.data);
+      displayCompanyNews(response.data);
+      resizeWordCloud();
     },
     error: function (xhr, status, error) {
       displayEmptyChart();
       console.error(
         "Error fetching data: " + xhr.status + " " + xhr.responseText
       );
+    },
+  });
+};
+
+requestCompanyRecruitments = () => {
+  console.log(companyInfo.companyName);
+  $.ajax({
+    url: "/company/recruitment",
+    type: "GET",
+    dataType: "json",
+    data: {
+      "company-name": companyInfo.companyName,
+    },
+    success: function (response) {
+      console.log(response);
+      CompanyApp.companyDetails["company_recruitments"] = response.data;
+      displayRecruits(response.company_recruitments);
+    },
+    error: function (xhr, status, error) {
+      console.error(
+        "Error fetching data: " + xhr.status + " " + xhr.responseText
+      );
+      $("#recruit-section").empty();
+      var responseObj = JSON.parse(xhr.responseText);
+      $("#recruit-section").text(responseObj.message);
     },
   });
 };
@@ -126,26 +150,22 @@ displayStockChart = (data) => {
     CompanyApp.stockChart.destroy();
   }
 
-  const stockDatasets = data.stock_info.map((stock, index) => {
-    data = stock.closing_price.map((price, index) => ({
-      x: stock.transaction_date[index],
-      y: price,
-    }));
-
-    return {
-      data: data,
-      fill: false,
-      // borderColor: getRandomColor(etf.etf_name), // 각 선의 색상을 랜덤으로 생성
-      borderColor: purple,
-      tension: 0.1,
-    };
-  });
+  const stockDatasets = {
+    labels: data.stock_info.transaction_date,
+    datasets: [
+      {
+        label: companyInfo.companyName,
+        data: data.stock_info.closing_price,
+        borderColor: "purple",
+        fill: false,
+        tension: 0.1, // 곡선을 얼마나 부드럽게 할지 결정합니다
+      },
+    ],
+  };
 
   CompanyApp.stockChart = new Chart(ctx, {
     type: "line",
-    data: {
-      datasets: stockDatasets,
-    },
+    data: stockDatasets,
     options: {
       scales: {
         x: {
@@ -221,92 +241,81 @@ displayWordCloud = (width, height) => {
   layout.start();
 };
 
-displayCompanyNews = () => {
-  CompanyApp.companyDetails.company_news.forEach(function (item) {
-    for (let news_id in item) {
-      const news = item[news_id];
+displayCompanyNews = (data) => {
+  if (data.company_news.length > 0) {
+    $("#news-list").empty();
 
-      const $anchor = $("<a></a>", {
-        class: "card",
-        href: news.news_url,
-        target: "_blank",
-        style: "text-decoration: none",
-      });
+    data.company_news.forEach(function (item) {
+      for (let news_id in item) {
+        const news = item[news_id];
+        let posted_at = undefined;
+        if (news.posted_at) {
+          const date = new Date(news.posted_at);
+          posted_at =
+            date.toISOString().split("T")[0] +
+            " " +
+            date.toISOString().split("T")[1].slice(0, 8);
+        }
 
-      $("<h1></h1>", {
-        text: news.news_title,
-      }).appendTo($anchor);
+        const $anchor = $("<a></a>", {
+          class: "card",
+          href: news.news_url,
+          target: "_blank",
+          style: "text-decoration: none",
+        });
 
-      $("<p></p>", {
-        text: news.posted_at,
-      }).appendTo($anchor);
+        $("<h1></h1>", {
+          text: news.news_title,
+        }).appendTo($anchor);
 
-      $("<p></p>", {
-        text: news.news_text,
-      }).appendTo($anchor);
+        $("<p></p>", {
+          text: posted_at,
+          style: "margin-bottom: 10px;",
+        }).appendTo($anchor);
 
-      $("#news-list").append($anchor);
-    }
-  });
+        $("<p></p>", {
+          text: news.news_text,
+        }).appendTo($anchor);
+
+        $("#news-list").append($anchor);
+      }
+    });
+  }
 };
 
-displayRecruits = () => {
-  // Simulating the recruitment data object
-  const recruitmentData = {
-    recruitment1: {
-      title: "title1",
-      url: "jobkorea_url1",
-    },
-    recruitment2: {
-      title: "title2",
-      url: "jobkorea_url2",
-    },
-    recruitment3: {
-      title: "title3",
-      url: "jobkorea_url3",
-    },
-  };
-  // const recruitmentData = CompanyApp.companyDetails.company_recruitments
+displayRecruits = (data) => {
+  data.forEach(function (recruitment, index) {
+    const $anchor = $("<a></a>", {
+      class: "card",
+      href: recruitment.recruitment_url,
+      target: "_blank",
+      style: "text-decoration: none",
+    });
 
-  for (let key in recruitmentData) {
-    if (recruitmentData.hasOwnProperty(key)) {
-      const recruitment = recruitmentData[key];
+    // Create and append the h1 element for the title
+    $("<h1></h1>", {
+      text: recruitment.recruitment_title,
+    }).appendTo($anchor);
 
-      // Create the anchor element
-      const $anchor = $("<a></a>", {
-        class: "card",
-        href: recruitment.url,
-        target: "_blank",
-        style: "text-decoration: none",
-      });
+    // Replace these placeholder texts with the actual data if available
+    due_date = recruitment.due_date ? recruitment.due_date : "상시채용";
+    $("<p></p>", {
+      text: recruitment.career + "  " + recruitment.education + "  " + due_date,
+      style: "margin-bottom: 10px;",
+    }).appendTo($anchor);
 
-      // Create and append the h1 element for the title
-      $("<h1></h1>", {
-        text: recruitment.title,
-      }).appendTo($anchor);
+    $("<p></p>", {
+      text: recruitment.job_names.join(", "),
+      style: "margin-bottom: 10px;",
+    }).appendTo($anchor);
 
-      // Replace these placeholder texts with the actual data if available
-      $("<p></p>", {
-        text:
-          recruitment.career +
-          "  " +
-          recruitment.education +
-          "  " +
-          recruitment.due_date,
-      }).appendTo($anchor);
+    $("<p></p>", {
+      text: recruitment.skill_names.join(", "),
+    }).appendTo($anchor);
 
-      $("<p></p>", {
-        text: recruitment.job_name,
-      }).appendTo($anchor);
-
-      $("<p></p>", {
-        text: recruitment.skill_name,
-      }).appendTo($anchor);
-
-      // Append the completed anchor element to the main div container
-      $("#recruit-section").append($anchor);
-    }
-  }
+    // Append the completed anchor element to the main div container
+    $("#recruit-section").append($anchor);
+  });
 };
 
 $(window).resize(resizeWordCloud);

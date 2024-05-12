@@ -4,6 +4,7 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import *
+from Company.models import Company
 from django.db.models import Avg
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
@@ -138,7 +139,8 @@ class CompanyInfoView(APIView):
             domain_companies_info = []
             
             for industry in industries:
-                companies = Company.objects.filter(industries=industry)
+                companies = Company.objects.filter(industries=industry).order_by('company_name')
+                
                 company_info_list = []
                 
                 for company in companies:
@@ -151,6 +153,8 @@ class CompanyInfoView(APIView):
                     })
                 
                 domain_companies_info.extend(company_info_list)
+
+            domain_companies_info.sort(key=lambda x: x["company_name"])
             
             response_data = {
                 "domain_companies_info": domain_companies_info
