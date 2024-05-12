@@ -16,12 +16,14 @@ class DataLoader:
         existing_companies = Company.objects.in_bulk(list(companies_df['company_name']), field_name='company_name')
         existing_company_names = set(existing_companies.keys())
 
+        # industries = Industry.objects.in_bulk(field_name='industry_name')
         to_update = []
         new_companies = []
+        to_create = {}
 
         for company_data in company_list:
             company_name = company_data['company_name']
-            industry_name = company_data.pop('industry_name', None)
+            industry_name = company_data['industry_name']
             company_data = {k: v for k, v in company_data.items() if k in [field.name for field in Company._meta.get_fields()]}
 
             try:
@@ -35,19 +37,18 @@ class DataLoader:
                     company.industries.add(industry)
                     to_update.append(company)
             elif company_name not in [c.company_name for c in new_companies]:
-                new_companies.append(Company(**company_data))
+                new_company = Company(**company_data)
+                new_companies.append(new_company)
+                to_create[company_name] = industry
 
         # Bulk create new companies
         created_companies = Company.objects.bulk_create(new_companies)
         
         # After creation, map companies to industries
         for company in created_companies:
+            industry = to_create[company.company_name]
             company.industries.add(industry)
-            print(industry_name)
-
-        for company in created_companies:
-            company.industries.add(industry)
-            print(f"New company {company.company_name} added with industry {industry_name}")
+            print(f"New company {company.company_name} added with industry {industry.industry_name}")
 
         return len(company_list), len(new_companies), len(to_update)
     

@@ -14,7 +14,7 @@ class CompanyInfoAPI(APIView):
     company_name = openapi.Parameter('company_name', openapi.IN_QUERY, description='company_name', required=True, type=openapi.TYPE_STRING)
     @swagger_auto_schema(operation_description="회사 정보 API", manual_parameters=[company_name], tags=['company'], reponses={200: 'Success'})
     def get(self, request):
-        company_insert_name = request.GET.get('company_name')
+        company_insert_name = request.GET.get('company-name')
 
         if not company_insert_name:
             return JsonResponse({"message": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
@@ -54,7 +54,9 @@ class CompanyInfoAPI(APIView):
             for news in news_result:
                 company_news.append({news.news_id : {
                     "news_title" : news.news_title,
-                    "news_text" : news.news_text
+                    "news_text" : news.news_text,
+                    "news_url" : news.news_url,
+                    "posted_at" : news.posted_at,
                 }})
             
             company_info = {
@@ -87,7 +89,7 @@ class RecruitmentView(APIView):
         tags=['company'],
     )
     def get(self, request):
-        request_company_name = request.GET.get('company_name')
+        request_company_name = request.GET.get('company-name')
         if not request_company_name:
             return Response({"message": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -130,12 +132,7 @@ class RecruitmentView(APIView):
                 }
             )
         return company_recruitments
-
-# def company_index(request):
-#     return render(request, 'Company/company_index.html', {
-#         'company_detail': 'Company/company_detail.html',
-#         'company_recruit': 'Company/company_recruit.html'
-#     })
+    
 
 from django.shortcuts import get_object_or_404
 def index(request, company_name):

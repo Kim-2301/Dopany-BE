@@ -266,19 +266,33 @@ requestCompaniesByDomain = (domainName) => {
       "domain-name": domainName || "IT",
     },
     success: function (response) {
-      // displayCompanies(response);
-      EtfApp.companiesInfo = response;
-      displayCompanies();
+      console.log(response.domain_companies_info.length);
+      if (response.domain_companies_info.length > 0) {
+        EtfApp.companiesInfo = response;
+        EtfApp.currentPage = 1;
+        displayCompanies();
+      } else {
+        $("#company-grid-section").empty();
+        $("#company-body-section").prepend(
+          $("<span>").text("해당 도메인에 속한 기업 정보를 찾을 수 없습니다.")
+        );
+      }
     },
     error: function (xhr, status, error) {
       console.error(
         "Error fetching data: " + xhr.status + " " + xhr.responseText
+      );
+      $("#company-grid-section").empty();
+      $("#company-body-section").prepend(
+        $("<span>").text("해당 도메인에 속한 기업 정보를 찾을 수 없습니다.")
       );
     },
   });
 };
 
 function displayCompanies() {
+  $("#company-body-section > span").remove();
+
   const mainContainer = document.getElementById("company-grid-section");
   mainContainer.innerHTML = "";
 
@@ -297,7 +311,7 @@ function displayCompanies() {
     companyContainer.style.cursor = "pointer";
 
     companyContainer.addEventListener("click", () => {
-      window.location.href = `/etf/company_index/${company.company_name}`;
+      window.location.href = `/company/${company.company_name}`;
       // window.location.assign = `/etf/company_index/${company.company_name}`;
     });
 
@@ -314,9 +328,6 @@ function displayCompanies() {
     const convertedSales = company.company_sales.includes("(")
       ? company.company_sales.split("(")[0]
       : company.company_sales;
-
-    console.log(truncatedName);
-    console.log(convertedImg);
 
     companyContainer.innerHTML = `
           <div class="company-icon-section">

@@ -62,34 +62,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
-  <!-- <script>
-    function activateTab(event, tabId) {
-      var i, tabcontent, tablinks;
-
-      tabcontent = document.getElementsByClassName("tab-content");
-      for (i = 0; i < tabcontent.length; i++) {
-          tabcontent[i].style.display = "none";
-          tablinks = document.getElementsByClassName("tab");
-      }
-
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].style.backgroundColor = 'white'; // 기본 비활성 색상
-        tablinks[i].style.color = 'black'; // 기본 텍스트 색상
-      }
-
-      document.getElementById(tabId).style.display = "block";
-
-      event.currentTarget.style.backgroundColor = '#f39189';
-      event.currentTarget.style.color = 'white';
-    }
-
-    document.getElementsByClassName("tab")[0].click();
-  </script> -->
     <script>
       var companyInfo = {
         companyName: "{{ company_info.company_name|escapejs }}",
       };
     </script>
-    <script src="{% static 'Company/js/company_script.js' %}"></script>
+    <script src="{% static 'Company/js/company_script.js' %}?v=1.0.6"></script>
   </body>
 </html>

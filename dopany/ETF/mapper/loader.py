@@ -67,7 +67,12 @@ class DataLoader:
                     if not industry.domains.filter(domain_id=domain_id).exists():
                         industry.domains.add(domain)
                         to_update.append(industry)  # To signify that domains were updated
-                elif industry_name not in to_create:
+                elif industry_name in to_create.keys():
+                    industry = to_create[industry_name]
+                    if not industry.domains.filter(domain_id=domain_id).exists():
+                        industry.domains.add(domain)
+                        to_update.append(industry)  # To signify that domains were updated
+                elif industry_name not in to_create.keys():
                     new_industry = Industry(industry_name=industry_name)
                     new_industry.save()  # 먼저 객체를 저장
                     new_industry.domains.add(domain)
