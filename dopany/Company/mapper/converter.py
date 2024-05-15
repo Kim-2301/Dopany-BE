@@ -45,3 +45,16 @@ class Converter:
                 dataframes.append(df)
         
         return dataframes
+
+
+    def convert_reviews_csv_to_df(self, directory_path):
+        dataframes = []
+
+        for filename in os.listdir(directory_path):
+            if filename.endswith('.csv'):
+                file_path = os.path.join(directory_path, filename)
+                df = pd.read_csv(file_path)
+                
+                dataframes.append(df)
+        
+        return dataframes

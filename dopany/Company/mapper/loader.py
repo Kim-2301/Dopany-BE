@@ -2,6 +2,7 @@ from ETF.models import Industry
 from Company.models import *
 from django.db.models import Q
 from django.db import transaction
+from django.db import connection
 
 from utils.decorator import singleton
 import pandas as pd
@@ -265,3 +266,51 @@ class DataLoader:
                 Skill.objects.bulk_update(to_update, ['skill_name'])
 
         return len(skills_list), len(to_create), len(to_update)
+    
+
+    def load_cons_review_from_df(self, review_df):
+        reviews = []
+
+        for field in ConsReview._meta.fields:
+            print(f"Field Name: {field.name}, Field Type: {field.get_internal_type()}")
+
+        i = 1
+        for _, row in review_df.iterrows():
+            # Get the corresponding Company instance using the provided foreign key
+            company_instance = Company.objects.get(company_name=row['company_name'])
+            reviews.append(ConsReview(company=company_instance, review_text=row['review_text']))
+            print(f'preparing : {i/len(review_df)*100}%')
+            i += 1
+
+        # Bulk create all objects at once
+        ConsReview.objects.bulk_create(reviews)
+
+        # for query in connection.queries:
+        #     print(query)
+        print(connection.queries[-1])
+
+        return len(reviews)
+
+
+    def load_pros_review_from_df(self, review_df):
+        reviews = []
+
+        for field in ConsReview._meta.fields:
+            print(f"Field Name: {field.name}, Field Type: {field.get_internal_type()}")
+
+        i = 1
+        for _, row in review_df.iterrows():
+            # Get the corresponding Company instance using the provided foreign key
+            company_instance = Company.objects.get(company_name=row['company_name'])
+            reviews.append(ProsReview(company=company_instance, review_text=row['review_text']))
+            print(f'preparing : {i/len(review_df)*100}%')
+            i += 1
+
+        # Bulk create all objects at once
+        ProsReview.objects.bulk_create(reviews)
+
+        # for query in connection.queries:
+        #     print(query)
+        print(connection.queries[-1])
+
+        return len(reviews)
