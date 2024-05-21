@@ -12,8 +12,8 @@ Project : dopany
 
 1. 실행 환경을 준비합니다.<br/>
   (1) 본 레포지토리를 clone 합니다.<br/>
-  (2) python version 11을 설치합니다.<br/>
-  (3) 프로젝트 최상위 경로(dopany/)에서 dev-requirements.txt의 라이브러리들을 설치합니다.<br/>
+  (2) python 3.11을 설치합니다.<br/>
+  (3) 프로젝트 최상위 경로(dopany/)에서 requirements.txt의 라이브러리들을 설치합니다.<br/>
 
 2. 로컬 데이터베이스를 준비합니다.<br/>
   (1) 로컬에 PostgreSQL을 설치합니다.<br/>
