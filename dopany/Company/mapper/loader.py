@@ -9,6 +9,9 @@ import pandas as pd
 import re
 from datetime import datetime
 
+from konlpy.tag import Hannanum
+from collections import Counter
+
 @singleton
 class DataLoader:
 
@@ -312,5 +315,48 @@ class DataLoader:
         # for query in connection.queries:
         #     print(query)
         print(connection.queries[-1])
+
+        return len(reviews)
+    
+
+    def load_pros_review_word_from_db(self):
+        hannanum = Hannanum()
+
+        reviews = ProsReview.objects.all()
+        pros_words = []
+
+        i = 1
+        for review in reviews:
+            nouns = hannanum.nouns(review.review_text)
+            nouns = [n.strip('ㆍ,') if 'ㆍ' in n else n for n in nouns]
+            nouns = [n for n in nouns if len(n) > 1]
+            nouns_freq = Counter(nouns)
+            for word, weight in nouns_freq.items():
+                pros_words.append(ProsWord(pros_review=review, word_text=word, weight=weight))
+            i += 1
+            print(f'preparing : {round(i/len(reviews)*100, 1)}%')
+
+        ProsWord.objects.bulk_create(pros_words)
+
+        return len(reviews)
+    
+    def load_cons_review_word_from_db(self):
+        hannanum = Hannanum()
+
+        reviews = ConsReview.objects.all()
+        cons_words = []
+
+        i = 1
+        for review in reviews:
+            nouns = hannanum.nouns(review.review_text)
+            nouns = [n.strip('ㆍ,') if 'ㆍ' in n else n for n in nouns]
+            nouns = [n for n in nouns if len(n) > 1]
+            nouns_freq = Counter(nouns)
+            for word, weight in nouns_freq.items():
+                cons_words.append(ConsWord(cons_review=review, word_text=word, weight=weight))
+            i += 1
+            print(f'preparing : {round(i/len(reviews)*100, 1)}%')
+
+        ConsWord.objects.bulk_create(cons_words)
 
         return len(reviews)

@@ -113,24 +113,22 @@ class ProsReview(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     review_text = models.TextField()
 
-# class ProsWord(models.Model):
-#     pros_word_id = models.AutoField(primary_key=True)
-#     pros_id = models.ForeignKey(ProsReview, on_delete=models.CASCADE)
-#     word_text = models.TextField()
-#     word_type = models.BooleanField(default=True, null=False)
-#     weight = models.IntegerField(default=0)
+class ProsWord(models.Model):
+    pros_word_id = models.AutoField(primary_key=True)
+    pros_review = models.ForeignKey(ProsReview, on_delete=models.CASCADE)
+    word_text = models.CharField(max_length=255)
+    weight = models.IntegerField(default=1)
 
 class ConsReview(models.Model):
     cons_id = models.AutoField(primary_key=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     review_text = models.TextField()
 
-# class ConsWord(models.Model):
-#     cons_word_id = models.AutoField(primary_key=True)
-#     cons_id = models.ForeignKey(ConsReview, on_delete=models.CASCADE)
-#     word_text = models.TextField()
-#     word_type = models.BooleanField(default=False, null=False)
-#     weight = models.IntegerField(default=0)
+class ConsWord(models.Model):
+    cons_word_id = models.AutoField(primary_key=True)
+    cons_review = models.ForeignKey(ConsReview, on_delete=models.CASCADE)
+    word_text = models.CharField(max_length=255)
+    weight = models.IntegerField(default=1)
 
 class News(models.Model):
     news_id = models.AutoField(primary_key=True)
