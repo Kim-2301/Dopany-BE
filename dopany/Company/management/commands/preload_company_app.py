@@ -46,3 +46,19 @@ class Command(BaseCommand):
         news_df = pd.concat(news_df_list)
         num_input = loader.load_news_from_df(news_df)
         self.stdout.write(self.style.SUCCESS(f"Number of News input: {num_input}, Number of News created: {num_input}"))
+
+        # load reviews
+        reviews_df_list = converter.convert_reviews_csv_to_df('Company/mapper/initial_data/reviews/cons')
+        reviews_df = pd.concat(reviews_df_list)
+        num_input = loader.load_cons_review_from_df(reviews_df)
+        self.stdout.write(self.style.SUCCESS(f"Number of Cons Reviews input: {num_input}"))
+
+        reviews_df_list = converter.convert_reviews_csv_to_df('Company/mapper/initial_data/reviews/pros')
+        reviews_df = pd.concat(reviews_df_list)
+        num_input = loader.load_pros_review_from_df(reviews_df)
+        self.stdout.write(self.style.SUCCESS(f"Number of Pros Reviews input: {num_input}"))
+
+        # load review words
+        pros_num_input = loader.load_pros_review_word_from_db()
+        cons_num_input = loader.load_cons_review_word_from_db()
+        self.stdout.write(self.style.SUCCESS(f"Number of Pros Review Words input: {pros_num_input}, Cons Review Words input: {cons_num_input}"))

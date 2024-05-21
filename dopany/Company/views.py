@@ -33,21 +33,21 @@ class CompanyInfoAPI(APIView):
             
             mood_words = {}
 
-            pros_reviews = ProsReview.objects.filter(company_id=company_id)
+            pros_reviews = ProsReview.objects.filter(company=company_result)
             for pros in pros_reviews:
-                for i in ProsWord.objects.filter(pros_id=pros.pros_id):
+                for i in ProsWord.objects.filter(pros_review=pros):
                     if i.word_text in mood_words:
-                        mood_words[i.word_text][1] += 1
+                        mood_words[i.word_text][1] += i.weight
                     else:
-                        mood_words[i.word_text] = [True, 0]
+                        mood_words[i.word_text] = [True, i.weight]
 
             cons_reviews = ConsReview.objects.filter(company_id=company_id)
             for cons in cons_reviews:
-                for i in ConsWord.objects.filter(cons_id=cons.cons_id):
+                for i in ConsWord.objects.filter(cons_review=cons):
                     if i.word_text in mood_words:
-                        mood_words[i.word_text][1] += 1
+                        mood_words[i.word_text][1] += i.weight
                     else:
-                        mood_words[i.word_text] = [False, 0]
+                        mood_words[i.word_text] = [False, i.weight]
             
             news_result = News.objects.filter(company_id=company_id)
             company_news = []

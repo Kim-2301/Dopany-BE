@@ -197,48 +197,57 @@ resizeWordCloud = () => {
 
 // Function to create/update the word cloud
 displayWordCloud = (width, height) => {
-  $("#keyword-cloud svg").remove();
+  console.log(Object.keys(CompanyApp.companyDetails.mood_words).length);
+  if (Object.keys(CompanyApp.companyDetails.mood_words).length > 0) {
+    $("#keyword-cloud svg").remove();
+    $("#keyword-cloud").empty();
 
-  const keywords = [];
+    const keywords = [];
 
-  // Loop through each key-value pair in the original data object
-  for (const [text, [isPros, size]] of Object.entries(
-    CompanyApp.companyDetails
-  )) {
-    keywords.push({ text, size, isPros });
+    console.log(CompanyApp.companyDetails.mood_words);
+
+    // Loop through each key-value pair in the original data object
+    for (const [text, [isPros, size]] of Object.entries(
+      CompanyApp.companyDetails.mood_words
+    )) {
+      keywords.push({ text, size, isPros });
+    }
+
+    // Initialize the SVG element
+    const svg = d3
+      .select("#keyword-cloud")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", `translate(${width / 2},${height / 2})`);
+
+    // Set up d3 cloud layout
+    const layout = d3.layout
+      .cloud()
+      .size([width, height])
+      .words(keywords)
+      .padding(5)
+      .rotate(() => ~~360)
+      .fontSize((d) => d.size)
+      .on("end", (words) => {
+        svg
+          .selectAll("text")
+          .data(words)
+          .enter()
+          .append("text")
+          .style("font-size", (d) => (d.size > 0 ? d.size : null + "px"))
+          .style("fill", (d) => (d.isPros ? "blue" : "red"))
+          .attr("text-anchor", "middle")
+          .attr(
+            "transform",
+            (d) => `translate(${d.x},${d.y})rotate(${d.rotate})`
+          )
+          .text((d) => d.text);
+      });
+
+    layout.start();
   }
-
-  // Initialize the SVG element
-  const svg = d3
-    .select("#keyword-cloud")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", `translate(${width / 2},${height / 2})`);
-
-  // Set up d3 cloud layout
-  const layout = d3.layout
-    .cloud()
-    .size([width, height])
-    .words(keywords)
-    .padding(5)
-    .rotate(() => ~~360)
-    .fontSize((d) => d.size)
-    .on("end", (words) => {
-      svg
-        .selectAll("text")
-        .data(words)
-        .enter()
-        .append("text")
-        .style("font-size", (d) => d.size + "px")
-        .style("fill", (d) => (d.isPros ? "blue" : "red"))
-        .attr("text-anchor", "middle")
-        .attr("transform", (d) => `translate(${d.x},${d.y})rotate(${d.rotate})`)
-        .text((d) => d.text);
-    });
-
-  layout.start();
 };
 
 displayCompanyNews = (data) => {
@@ -300,7 +309,12 @@ displayRecruits = (data) => {
     // Replace these placeholder texts with the actual data if available
     due_date = recruitment.due_date ? recruitment.due_date : "상시채용";
     $("<p></p>", {
-      text: recruitment.career + "  " + recruitment.education + "  " + due_date,
+      text:
+        recruitment.career +
+        "  " +
+        recruitment.education +
+        "  " +
+        due_date.split("T")[0],
       style: "margin-bottom: 10px;",
     }).appendTo($anchor);
 

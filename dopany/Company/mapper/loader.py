@@ -2,11 +2,15 @@ from ETF.models import Industry
 from Company.models import *
 from django.db.models import Q
 from django.db import transaction
+from django.db import connection
 
 from utils.decorator import singleton
 import pandas as pd
 import re
 from datetime import datetime
+
+from konlpy.tag import Hannanum
+from collections import Counter
 
 @singleton
 class DataLoader:
@@ -265,3 +269,94 @@ class DataLoader:
                 Skill.objects.bulk_update(to_update, ['skill_name'])
 
         return len(skills_list), len(to_create), len(to_update)
+    
+
+    def load_cons_review_from_df(self, review_df):
+        reviews = []
+
+        for field in ConsReview._meta.fields:
+            print(f"Field Name: {field.name}, Field Type: {field.get_internal_type()}")
+
+        i = 1
+        for _, row in review_df.iterrows():
+            # Get the corresponding Company instance using the provided foreign key
+            company_instance = Company.objects.get(company_name=row['company_name'])
+            reviews.append(ConsReview(company=company_instance, review_text=row['review_text']))
+            print(f'preparing : {i/len(review_df)*100}%')
+            i += 1
+
+        # Bulk create all objects at once
+        ConsReview.objects.bulk_create(reviews)
+
+        # for query in connection.queries:
+        #     print(query)
+        print(connection.queries[-1])
+
+        return len(reviews)
+
+
+    def load_pros_review_from_df(self, review_df):
+        reviews = []
+
+        for field in ConsReview._meta.fields:
+            print(f"Field Name: {field.name}, Field Type: {field.get_internal_type()}")
+
+        i = 1
+        for _, row in review_df.iterrows():
+            # Get the corresponding Company instance using the provided foreign key
+            company_instance = Company.objects.get(company_name=row['company_name'])
+            reviews.append(ProsReview(company=company_instance, review_text=row['review_text']))
+            print(f'preparing : {i/len(review_df)*100}%')
+            i += 1
+
+        # Bulk create all objects at once
+        ProsReview.objects.bulk_create(reviews)
+
+        # for query in connection.queries:
+        #     print(query)
+        print(connection.queries[-1])
+
+        return len(reviews)
+    
+
+    def load_pros_review_word_from_db(self):
+        hannanum = Hannanum()
+
+        reviews = ProsReview.objects.all()
+        pros_words = []
+
+        i = 1
+        for review in reviews:
+            nouns = hannanum.nouns(review.review_text)
+            nouns = [n.strip('ㆍ,') if 'ㆍ' in n else n for n in nouns]
+            nouns = [n for n in nouns if len(n) > 1]
+            nouns_freq = Counter(nouns)
+            for word, weight in nouns_freq.items():
+                pros_words.append(ProsWord(pros_review=review, word_text=word, weight=weight))
+            i += 1
+            print(f'preparing : {round(i/len(reviews)*100, 1)}%')
+
+        ProsWord.objects.bulk_create(pros_words)
+
+        return len(reviews)
+    
+    def load_cons_review_word_from_db(self):
+        hannanum = Hannanum()
+
+        reviews = ConsReview.objects.all()
+        cons_words = []
+
+        i = 1
+        for review in reviews:
+            nouns = hannanum.nouns(review.review_text)
+            nouns = [n.strip('ㆍ,') if 'ㆍ' in n else n for n in nouns]
+            nouns = [n for n in nouns if len(n) > 1]
+            nouns_freq = Counter(nouns)
+            for word, weight in nouns_freq.items():
+                cons_words.append(ConsWord(cons_review=review, word_text=word, weight=weight))
+            i += 1
+            print(f'preparing : {round(i/len(reviews)*100, 1)}%')
+
+        ConsWord.objects.bulk_create(cons_words)
+
+        return len(reviews)
