@@ -1,0 +1,20 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'ETF/css/domain_styles.css' %}" />
+  </head>
+  <body>
+    <div id="company-body-section">
+      <div id="company-grid-section"></div>
+      <div id="company-pagination">
+        <button onclick="previousPage()">prev</button>
+        <span id="page-indicator">1</span>
+        <button onclick="nextPage()">next</button>
+      </div>
+    </div>
+  </body>
+</html>

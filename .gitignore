@@ -5,6 +5,7 @@
 __pycache__
 db.sqlite3
 media
+migrations
 # Backup files
 *.bak
 # Python
@@ -48,7 +49,7 @@ nosetests.xml
 .pytest_cache
 # Environments
 /local
-/.env
+*.env
 .venv
 ENV/
 env.bak/
@@ -56,6 +57,8 @@ env/
 venv
 venv.bak/
 venv/
+Pipfile
+Pipfile.lock
 # Misc
 .mypy_cache
 /staticfiles

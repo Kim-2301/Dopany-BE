@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dopany</title>
+    <link rel="stylesheet" href="{% static 'ETF/css/domain_styles.css' %}" />
+  </head>
+  <body>
+    <div id="container">
+      <div id="head-container">
+        <div id="head-section">
+          <div id="svg-article">
+            <img src="{% static 'ETF/images/Dopany.svg' %}" alt="icon SVG" />
+          </div>
+        </div>
+        <div id="body-section">
+          <div id="etf-head-section">
+            <div id="etf-head-article">Domain ETF</div>
+            <div id="etf-headsub-article">
+              금융시장 ETF 흐름을 통해 Domain의 트렌드를 확인해보세요!
+            </div>
+          </div>
+          <div id="etf-body-section">{% include domain_etf %}</div>
+        </div>
+      </div>
+      <div id="foot-container">
+        <div id="company-head-section">
+          Company
+          <div id="company-headsub-article">
+            Domain의 기업을 클릭하여 세부 정보를 알아보세요!
+            <hr width="100%" size="5px" color="#CFCECE" noshade />
+          </div>
+        </div>
+        {% include domain_company %}
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+    <script src="{% static 'ETF/js/domain_script.js' %}?v=1.0"></script>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="{% static 'Company/css/company_styles.css' %}"
+    />
+  </head>
+  <body>
+    <div class="content-sub-section">
+      <div class="head-article">
+        <div style="margin-right: 15px">기업 주가</div>
+        <div style="width: 100%; padding-top: 8px">
+          <hr width="100%" size="5px" color="#CFCECE" noshade />
+        </div>
+      </div>
+      <div id="chart-article" class="content-article">
+        <canvas id="stock-chart"></canvas>
+      </div>
+    </div>
+    <div id="info-grid-section">
+      <div class="content-sub-section">
+        <div class="head-article">
+          <div style="margin-right: 15px">기업 평가</div>
+          <div style="width: 100%; padding-top: 8px">
+            <hr width="100%" size="5px" color="#CFCECE" noshade />
+          </div>
+        </div>
+        <div class="content-article">
+          <div id="keyword-cloud">리뷰가 없습니다.</div>
+        </div>
+      </div>
+      <div class="content-sub-section">
+        <div class="head-article">
+          <div style="margin-right: 15px">기업 뉴스</div>
+          <div style="width: 100%; padding-top: 8px">
+            <hr width="100%" size="5px" color="#CFCECE" noshade />
+          </div>
+        </div>
+        <div class="content-article">
+          <div id="news-list">기업과 관련된 뉴스가 없습니다.</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
