@@ -46,6 +46,7 @@ https://project-public.notion.site/TrendyDE-b56c9458c1d849379155df594f48532f?pvs
 
 
 <br/>
+
 # BE
 
 ## Django 프로젝트 구조
